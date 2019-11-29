@@ -1,6 +1,4 @@
 " Version:      1.2
-" https://github.com/spf13/spf13-vim
-" https://github.com/skywind3000/vim-init
 
 if exists('g:loaded_fzf_cscope') || &compatible
   finish
@@ -8,71 +6,105 @@ else
   let g:loaded_fzf_cscope = 'yes'
 endif
 
-function! Cscope(option, query)
-  let color = '{ x = $1; $1 = ""; z = $3; $3 = ""; printf "\033[34m%s\033[0m:\033[31m%s\033[0m\011\033[37m%s\033[0m\n", x,z,$0; }'
-  let opts = {
-  \ 'source':  "cscope -dL" . a:option . " " . a:query . " | awk '" . color . "'",
-  \ 'options': ['--ansi', '--prompt', '> ',
-  \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
-  \             '--color', 'fg:188,fg+:222,bg+:#3a3a3a,hl+:104'],
-  \ 'down': '40%'
-  \ }
-  function! opts.sink(lines) 
-    let data = split(a:lines)
-    let file = split(data[0], ":")
-    execute 'e ' . '+' . file[1] . ' ' . file[0]
-  endfunction
-  call fzf#run(opts)
-endfunction
 
-function! CscopeQuery(option)
-  call inputsave()
-  if a:option == '0'
-    let query = input('Assignments to: ')
-  elseif a:option == '1'
-    let query = input('Functions calling: ')
-  elseif a:option == '2'
-    let query = input('Functions called by: ')
-  elseif a:option == '3'
-    let query = input('Egrep: ')
-  elseif a:option == '4'
-    let query = input('File: ')
-  elseif a:option == '6'
-    let query = input('Definition: ')
-  elseif a:option == '7'
-    let query = input('Files #including: ')
-  elseif a:option == '8'
-    let query = input('C Symbol: ')
-  elseif a:option == '9'
-    let query = input('Text: ')
-  else
-    echo "Invalid option!"
-    return
-  endif
-  call inputrestore()
-  if query != ""
-    call Cscope(a:option, query)
-  else
-    echom "Cancelled Search!"
-  endif
-endfunction
+"nvim should load cscope db by script
+autocmd BufEnter * call cscope#LoadCscope()
+command! Cscope :call cscope#ReLoadCscope()
+"autocmd BufEnter /* call cscope#ReLoadCscope()
+"autocmd BufNewFile,BufRead * call cscope#LoadCscope()
 
-nnoremap <silent> <Leader>ca :call Cscope('0', expand('<cword>'))<CR>
-nnoremap <silent> <Leader>cc :call Cscope('1', expand('<cword>'))<CR>
-nnoremap <silent> <Leader>cd :call Cscope('2', expand('<cword>'))<CR>
-nnoremap <silent> <Leader>ce :call Cscope('3', expand('<cword>'))<CR>
-nnoremap <silent> <Leader>cf :call Cscope('4', expand('<cword>'))<CR>
-nnoremap <silent> <Leader>cg :call Cscope('6', expand('<cword>'))<CR>
-nnoremap <silent> <Leader>ci :call Cscope('7', expand('<cword>'))<CR>
-nnoremap <silent> <Leader>cs :call Cscope('8', expand('<cword>'))<CR>
-nnoremap <silent> <Leader>ct :call Cscope('9', expand('<cword>'))<CR>
 
-nnoremap <silent> <Leader><Leader>ca :call CscopeQuery('0')<CR>
-nnoremap <silent> <Leader><Leader>cc :call CscopeQuery('1')<CR>
-nnoremap <silent> <Leader><Leader>cd :call CscopeQuery('2')<CR>
-nnoremap <silent> <Leader><Leader>ce :call CscopeQuery('3')<CR>
-nnoremap <silent> <Leader><Leader>cf :call CscopeQuery('4')<CR>
-nnoremap <silent> <Leader><Leader>cg :call CscopeQuery('6')<CR>
-nnoremap <silent> <Leader><Leader>ci :call CscopeQuery('7')<CR>
-nnoremap <silent> <Leader><Leader>cs :call CscopeQuery('8')<CR>
-nnoremap <silent> <Leader><Leader>ct :call CscopeQuery('9')<CR>
+if has('cscope')
+    set cscopetagorder=0
+    "set cscopetag
+    set cscoperelative
+    set cscopeverbose
+    "set cscopequickfix=s-,c-,d-,i-,t-,e-
+    set cscopequickfix=s0,c0,d0,i0,t-,e-
+    set cscopepathcomp=3
+
+    "nnoremap T :cs find c <C-R>=expand("<cword>")<CR><CR>
+    "nnoremap t <C-]>
+    "nnoremap gt <C-W><C-]>
+    "nnoremap gT <C-W><C-]><C-W>T
+
+    "nnoremap <silent> <leader>z :Dispatch echo "Generating tags and cscope database..." &&
+    "    \ find -L . -iname '*.c' -o -iname '*.cpp' -o -iname '*.h' -o -iname '*.hpp' > cscope.files &&
+    "    \ sort cscope.files > cscope.files.sorted && mv cscope.files.sorted cscope.files &&
+    "    \ cscope -kbq -i cscope.files -f cscope.out &&
+    "    \ ctags -R --fields=+aimSl --c-kinds=+lpx --c++-kinds=+lpx --exclude='.svn' 
+    "    \ --exclude='.git' --exclude='*.a' --exclude='*.js' --exclude='*.pxd' --exclude='*.pyx' --exclude='*.so' &&
+    "    \ echo "Done." <cr><cr>
+
+    "cnoreabbrev csa cs add
+    "cnoreabbrev csf cs find
+    "cnoreabbrev csk cs kill
+    "cnoreabbrev csr cs reset
+    "cnoreabbrev css cs show
+    "cnoreabbrev csh cs help
+    "cnoreabbrev csc Cscope
+endif
+
+
+" The following maps all invoke one of the following cscope search types:
+"   's'   symbol: find all references to the token under cursor
+"   'g'   global: find global definition(s) of the token under cursor
+"   'c'   calls:  find all calls to the function name under cursor
+"   'd'   called: find functions that function under cursor calls
+"   't'   text:   find all instances of the text under cursor
+"   'e'   egrep:  egrep search for the word under cursor
+"   'f'   file:   open the filename under cursor
+"   'i'   includes: find files that include the filename under cursor
+"
+"    0    Find this C symbol:
+"    1    Find this function definition:
+"    2    Find functions called by this function:
+"    3    Find functions calling this function:
+"    4    Find this text string:
+"    5    Change this text string:
+"    6    Find this egrep pattern:
+"    7    Find this file:
+"    8    Find files #including this file:
+"
+" +ctags
+"         :tags   see where you currently are in the tag stack
+"         :tag sys_<TAB>  auto-complete
+" http://www.fsl.cs.sunysb.edu/~rick/rick_vimrc
+
+":help cscope-options
+
+" Diable cscopetag, using tags for auto-tag quickly.
+"set cscopetag
+"set cscopequickfix=s0,c0,d0,i0,t-,e-
+
+if exists("g:fzf_cscope_map") && g:fzf_cscope_map
+    "nmap <leader>] :cs find g <C-R>=expand("<cword>")<CR><CR>
+    nmap <leader>ff :cs find f <C-R>=expand("<cfile>")<CR>
+    nmap <leader>fs :cs find s <C-R>=expand("<cword>")<CR><CR>
+    nmap <leader>fg :cs find g <C-R>=expand("<cword>")<CR><CR>
+    nmap <leader>fc :cs find c <C-R>=expand("<cword>")<CR><CR>
+    nmap <leader>fd :cs find d <C-R>=expand("<cword>")<CR><CR>
+    nmap <leader>fe :cs find e <C-R>=expand("<cword>")<CR>
+    nmap <leader>ft :call cscope#Symbol() <CR>
+
+    nnoremap <silent> <Leader>fa :call cscope#run('0', expand('<cword>'))<CR>
+    nnoremap <silent> <Leader>cc :call cscope#run('1', expand('<cword>'))<CR>
+    nnoremap <silent> <Leader>cd :call cscope#run('2', expand('<cword>'))<CR>
+    nnoremap <silent> <Leader>ce :call cscope#run('3', expand('<cword>'))<CR>
+    nnoremap <silent> <Leader>cf :call cscope#run('4', expand('<cword>'))<CR>
+    nnoremap <silent> <Leader>cg :call cscope#run('6', expand('<cword>'))<CR>
+    nnoremap <silent> <Leader>ci :call cscope#run('7', expand('<cword>'))<CR>
+    nnoremap <silent> <Leader>cs :call cscope#run('8', expand('<cword>'))<CR>
+    nnoremap <silent> <Leader>ct :call cscope#run('9', expand('<cword>'))<CR>
+
+    nnoremap <silent> <Leader><Leader>ca :call cscope#Query('0')<CR>
+    nnoremap <silent> <Leader><Leader>cc :call cscope#Query('1')<CR>
+    nnoremap <silent> <Leader><Leader>cd :call cscope#Query('2')<CR>
+    nnoremap <silent> <Leader><Leader>ce :call cscope#Query('3')<CR>
+    nnoremap <silent> <Leader><Leader>cf :call cscope#Query('4')<CR>
+    nnoremap <silent> <Leader><Leader>cg :call cscope#Query('6')<CR>
+    nnoremap <silent> <Leader><Leader>ci :call cscope#Query('7')<CR>
+    nnoremap <silent> <Leader><Leader>cs :call cscope#Query('8')<CR>
+    nnoremap <silent> <Leader><Leader>ct :call cscope#Query('9')<CR>
+endif
+
