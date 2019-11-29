@@ -37,7 +37,9 @@ endfunction
 
 
 function! cscope#run(option, query)
-    let color = '{ x = $1; $1 = ""; z = $3; $3 = ""; printf "\033[34m%s\033[0m:\033[31m%s\033[0m\011\033[37m%s\033[0m\n", x,z,$0; }'
+    if !CheckPlug('fzf.vim', 1) | return | endif
+
+    let color = '{ file = $1; $1 = ""; lnum = $3; $3 = ""; printf "\033[34m%s\033[0m:\033[31m%s\033[0m\011\033[37m%s\033[0m\n", file,lnum,$0; }'
     let opts = {
                 \ 'source':  "cscope -dL" . a:option . " " . a:query . " | awk '" . color . "'",
                 \ 'options': ['--ansi', '--prompt', '> ',
@@ -86,6 +88,78 @@ function! cscope#Query(option)
         echom "Cancelled Search!"
     endif
 endfunction
+
+
+function! cscope#FileCat(mode, args, bang, preview)
+    if !CheckPlug('fzf.vim', 1)
+        return
+    endif
+
+    let command = ""
+    if !a:bang && filereadable("./.cscope.files")
+        let command = "awk '($1~/". a:args . "/) {print $0\":\033[30m0:0:0\033[0m\"}' ./.cscope.files"
+    elseif executable('rg')
+        let command = 'rg --no-heading --files --color=never --fixed-strings'. "| awk '($1~/". a:args . "/){print $0\":\033[30m0:0:0\033[0m\"}' "
+    elseif executable('ag')
+        let command = "ag -l --silent --nocolor -g '' ". "| awk '($1~/". a:args . "/) {print $0\":\033[30m0:0:0\033[0m\"}' "
+    endif
+
+    if empty(command)
+        Files
+        return
+    endif
+
+    call fzf#vim#grep(
+                \   command, 1,
+                \   a:preview ? fzf#vim#with_preview('up:60%')
+                \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+                \   a:preview)
+endfunction
+
+
+function! cscope#TagCat(mode, args, bang, preview)
+    if !CheckPlug('fzf.vim', 1)
+        return
+    endif
+
+    let tagfile = ''
+    if !exists('g:fuzzy_file_tag')
+        let g:fuzzy_file_tag = ["tagx", ".tagx"]
+    endif
+    for i in g:fuzzy_file_tag
+        if filereadable(i)
+            let tagfile = i
+            break
+        endif
+    endfor
+
+    if empty(tagfile)
+        echomsg "tagx file not exist!"
+        return
+    endif
+
+    " <bang>0 function, <bang>1 symbol
+    if a:bang
+        let command = "awk '($2 != \"function\" && $1~/". a:args. "/) {$1=$2=\"\"; print $4\"\033[30m:\"$3\":\033[0m\033[32m\"$5\" \"$6\" \"$7\" \033[0m\"$8}' ". tagfile
+    else
+        let command = "awk '($2 == \"function\" && $1~/". a:args. "/) {$1=$2=\"\"; print $4\"\033[30m:\"$3\":\033[0m\033[32m\"$5\" \"$6\" \"$7\" \033[0m\"$8}' ". tagfile
+    endif
+
+    if !empty(command)
+        call fzf#vim#grep(
+                    \   command, 0,
+                    \   a:preview ? fzf#vim#with_preview('up:60%')
+                    \          : fzf#vim#with_preview('right:50%:hidden', '?'),
+                    \   a:preview)
+
+        "call fzf#run({
+        "            \ 'source': command,
+        "            \ 'sink':   'e',
+        "            \ 'options': '-m -x +s',
+        "            \ 'window':  'enew' })
+    endif
+endfunction
+
 
 " list symbol
 function! cscope#Symbol()
