@@ -92,7 +92,7 @@ endif
 
 if exists("g:fzf_cscope_map") && g:fzf_cscope_map
     if CheckPlug('fzf.vim', 1)
-        nnoremap <silent> <Leader>fa :call cscope#run('0', expand('<cword>'))<CR>
+        nnoremap <silent> <Leader>fs :call cscope#run('0', expand('<cword>'))<CR>
         nnoremap <silent> <Leader>cc :call cscope#run('1', expand('<cword>'))<CR>
         nnoremap <silent> <Leader>cd :call cscope#run('2', expand('<cword>'))<CR>
         nnoremap <silent> <Leader>ce :call cscope#run('3', expand('<cword>'))<CR>
