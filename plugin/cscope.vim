@@ -93,14 +93,8 @@ endif
 if exists("g:fzf_cscope_map") && g:fzf_cscope_map
     if CheckPlug('fzf.vim', 1)
         nnoremap <silent> <Leader>fs :call cscope#run('0', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>cc :call cscope#run('1', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>cd :call cscope#run('2', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>ce :call cscope#run('3', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>cf :call cscope#run('4', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>cg :call cscope#run('6', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>ci :call cscope#run('7', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>cs :call cscope#run('8', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>ct :call cscope#run('9', expand('<cword>'))<CR>
+        nnoremap <silent> <Leader>ff :call cscope#preview('1', expand('<cword>'), 1)<CR>
+        nnoremap <silent> <Leader>fc :call cscope#run('2', expand('<cword>'))<CR>
 
         nnoremap ;i  :TagCatN! <C-R>=printf("%s", expand('<cword>'))<cr>
         nnoremap ;I  :TagCatPreN! <C-R>=printf("%s", expand('<cword>'))<cr>
@@ -130,16 +124,9 @@ if exists("g:fzf_cscope_map") && g:fzf_cscope_map
         xnoremap <silent> ;O  :FileCatV!<cr>
         "nnoremap <silent> ;O  :FileCatPreN<cr>
         "xnoremap <silent> ;O  :FileCatPreV<cr>
-        "
-        nnoremap <silent> <Leader><Leader>ca :call cscope#Query('0')<CR>
-        nnoremap <silent> <Leader><Leader>cc :call cscope#Query('1')<CR>
-        nnoremap <silent> <Leader><Leader>cd :call cscope#Query('2')<CR>
-        nnoremap <silent> <Leader><Leader>ce :call cscope#Query('3')<CR>
-        nnoremap <silent> <Leader><Leader>cf :call cscope#Query('4')<CR>
-        nnoremap <silent> <Leader><Leader>cg :call cscope#Query('6')<CR>
-        nnoremap <silent> <Leader><Leader>ci :call cscope#Query('7')<CR>
-        nnoremap <silent> <Leader><Leader>cs :call cscope#Query('8')<CR>
-        nnoremap <silent> <Leader><Leader>ct :call cscope#Query('9')<CR>
+
+        nnoremap <silent> <Leader><space>fs :call cscope#preview('0', expand('<cword>'), 1)<CR>
+        nnoremap <silent> <Leader><space>fc :call cscope#preview('2', expand('<cword>'), 1)<CR>
     else
         "nmap <leader>] :cs find g <C-R>=expand("<cword>")<CR><CR>
         nmap <leader>ff :cs find f <C-R>=expand("<cfile>")<CR>

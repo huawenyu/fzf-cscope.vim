@@ -1,3 +1,9 @@
+if !exists("s:init")
+    let s:init = 1
+    silent! let s:log = logger#getLogger(expand('<sfile>:t'))
+endif
+
+
 function! cscope#LoadCscope()
     if exists("s:cscope_db_loaded") && s:cscope_db_loaded
         return
@@ -39,7 +45,15 @@ endfunction
 function! cscope#run(option, query)
     if !CheckPlug('fzf.vim', 1) | return | endif
 
-    let color = '{ file = $1; $1 = ""; lnum = $3; $3 = ""; printf "\033[34m%s\033[0m:\033[31m%s\033[0m\011\033[37m%s\033[0m\n", file,lnum,$0; }'
+    "int func(struct s1 *, void *ctx,
+    let color = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
+                \.'isDefine=0;'
+                \.'if(!isDefine) {tmp=match($0, /;$/); if (tmp) isDefine=1;}'
+                \.'if(isDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[37m%s\033[0m\n",'
+                \.'     file,lnum,caller,$0; }'
+                \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[33m%s\033[0m\n",'
+                \.'     file,lnum,caller,$0; }'
+                \.'}'
     let opts = {
                 \ 'source':  "cscope -dL" . a:option . " " . a:query . " | awk '" . color . "'",
                 \ 'options': ['--ansi', '--prompt', '> ',
@@ -54,6 +68,30 @@ function! cscope#run(option, query)
     endfunction
 
     call fzf#run(opts)
+endfunction
+
+
+function! cscope#preview(option, query, preview)
+    let __func__ = "cscope#preview() "
+
+    if !CheckPlug('fzf.vim', 1) | return | endif
+
+    let color = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
+                \.'isDefine=0;'
+                \.'if(!isDefine) {tmp=match($0, /;$/); if (tmp) isDefine=1;}'
+                \.'if(isDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[37m%s\033[0m\n",'
+                \.'     file,lnum,caller,$0; }'
+                \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[33m%s\033[0m\n",'
+                \.'     file,lnum,caller,$0; }'
+                \.'}'
+    let cmdStr = "cscope -dL" . a:option . " " . a:query . " | awk '" . color . "'"
+    "silent! call s:log.info(__func__, cmdStr)
+
+    call fzf#vim#grep(
+                \   cmdStr, 0,
+                \   a:preview ? fzf#vim#with_preview('up:60%')
+                \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+                \   a:preview)
 endfunction
 
 
@@ -94,10 +132,11 @@ function! cscope#FileCat(mode, args, bang, preview)
     if !CheckPlug('fzf.vim', 1)
         return
     endif
+    let fake_lnum = '{ printf "%s:\033[30m0:0:0\033[0m\n", $0,0,0,0; }'
 
     let command = ""
     if !a:bang && filereadable("./.cscope.files")
-        let command = "awk '($1~/". a:args . "/) {print $0\":\033[30m0:0:0\033[0m\"}' ./.cscope.files"
+        let command = "awk '($1~/". a:args . "/)". fake_lnum. "' ./.cscope.files"
     elseif executable('rg')
         let command = 'rg --no-heading --files --color=never --fixed-strings'. "| awk '($1~/". a:args . "/){print $0\":\033[30m0:0:0\033[0m\"}' "
     elseif executable('ag')
