@@ -1,6 +1,38 @@
 if !exists("s:init")
     let s:init = 1
     silent! let s:log = logger#getLogger(expand('<sfile>:t'))
+
+    if 0
+        echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+        echo "render(SDL_Surface *screen)"      | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+        echo "render(screen)"                   | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+        echo "render()"                         | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+
+        echo "void render(SDL_Surface *screen)" | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+        echo "render(SDL_Surface *screen)"      | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+        echo "render(screen)"                   | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+
+        echo "render(screen)"                   | awk '/^[a-zA-Z\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+        echo "void render(SDL_Surface *screen)" | awk '/^([_a-zA-Z])+?([ \*]+)*?\(/{print $0}'
+        echo "render(SDL_Surface *screen)"      | awk '/^([a-zA-Z\w\* ]){1,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+
+        echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+        echo "void render(SDL_Surface *screen)" | awk '/^([\w\*]+( )*?){2,}\([^!@#$+%^;]+?\)/{print $0}'
+        echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )*?){2,}\([^!@#$+%^;]+?\)/{print $0}'
+
+        echo "void render(SDL_Surface *screen)" | awk '/([a-zA-Z]\w\*)\s+(\w+)\s*\([^\)]*\)\s*(;|{))/{print $0}'
+        echo "void render(SDL_Surface *screen)" | awk '/(?![a-z])[^\:,>,\.]([a-z,A-Z]+[_]*[a-z,A-Z]*)+[(]/{print $0}'
+    endif
+    let s:color = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
+                \.'isFuncDefine=0;'
+                \.'tmp=match($0, /(\w+( )?){2,}\([^!@#$+%^]+?\)/); if (tmp) isFuncDefine=1;'
+                \.'if(isFuncDefine) {tmp=match($0, /;$/); if (tmp) isFuncDefine=0;}'
+                \.'if(isFuncDefine) {tmp=match($0, / = /); if (tmp) isFuncDefine=0;}'
+                \.'if(isFuncDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[33m%s\033[0m\n",'
+                \.'     file,lnum,caller,$0; }'
+                \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[37m%s\033[0m\n",'
+                \.'     file,lnum,caller,$0; }'
+                \.'}'
 endif
 
 
@@ -45,17 +77,8 @@ endfunction
 function! cscope#run(option, query)
     if !CheckPlug('fzf.vim', 1) | return | endif
 
-    "int func(struct s1 *, void *ctx,
-    let color = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
-                \.'isDefine=0;'
-                \.'if(!isDefine) {tmp=match($0, /;$/); if (tmp) isDefine=1;}'
-                \.'if(isDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[37m%s\033[0m\n",'
-                \.'     file,lnum,caller,$0; }'
-                \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[33m%s\033[0m\n",'
-                \.'     file,lnum,caller,$0; }'
-                \.'}'
     let opts = {
-                \ 'source':  "cscope -dL" . a:option . " " . a:query . " | awk '" . color . "'",
+                \ 'source':  "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color . "'",
                 \ 'options': ['--ansi', '--prompt', '> ',
                 \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
                 \             '--color', 'fg:188,fg+:222,bg+:#3a3a3a,hl+:104'],
@@ -76,16 +99,8 @@ function! cscope#preview(option, query, preview)
 
     if !CheckPlug('fzf.vim', 1) | return | endif
 
-    let color = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
-                \.'isDefine=0;'
-                \.'if(!isDefine) {tmp=match($0, /;$/); if (tmp) isDefine=1;}'
-                \.'if(isDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[37m%s\033[0m\n",'
-                \.'     file,lnum,caller,$0; }'
-                \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[33m%s\033[0m\n",'
-                \.'     file,lnum,caller,$0; }'
-                \.'}'
-    let cmdStr = "cscope -dL" . a:option . " " . a:query . " | awk '" . color . "'"
-    "silent! call s:log.info(__func__, cmdStr)
+    let cmdStr = "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color . "'"
+    silent! call s:log.info(__func__, cmdStr)"
 
     call fzf#vim#grep(
                 \   cmdStr, 0,
