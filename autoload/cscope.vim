@@ -30,12 +30,18 @@ if !exists("s:init")
                 \.'if(isFuncDefine) {tmp=match($0, /;$/); if (tmp) isFuncDefine=0;}'
                 \.'if(isFuncDefine) {tmp=match($0, / = /); if (tmp) isFuncDefine=0;}'
                 \.'if(isFuncDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[33m%s\033[0m\n",'
-                \.'     file,lnum,caller,$0; }'
+                \.                          ' file,lnum,caller,$0; }'
                 \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[37m%s\033[0m\n",'
-                \.'     file,lnum,caller,$0; }'
+                \.                          ' file,lnum,caller,$0; }'
                 \.'}'
 
-    let s:color_tag = '{$1=$2=""; lnum=$3;$3=""; file=$4;$4=""; printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m\n", file,lnum,$0;}'
+    let s:color_tag = '{$1=$2=""; lnum=$3;$3=""; file=$4;$4="";'
+                \.'tmp=match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);'
+                \.'if(tmp) {printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m(%s)\n",'
+                \.    ' file,lnum,arr[1],arr[3]; }'
+                \.'else {printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m%s\n",'
+                \.    ' file,lnum,$0,arr[1]; }'
+                \.'}'
 endif
 
 
