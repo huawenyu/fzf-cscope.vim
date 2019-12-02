@@ -23,7 +23,8 @@ if !exists("s:init")
         echo "void render(SDL_Surface *screen)" | awk '/([a-zA-Z]\w\*)\s+(\w+)\s*\([^\)]*\)\s*(;|{))/{print $0}'
         echo "void render(SDL_Surface *screen)" | awk '/(?![a-z])[^\:,>,\.]([a-z,A-Z]+[_]*[a-z,A-Z]*)+[(]/{print $0}'
     endif
-    let s:color = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
+
+    let s:color_cscope = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
                 \.'isFuncDefine=0;'
                 \.'tmp=match($0, /(\w+( )?){2,}\([^!@#$+%^]+?\)/); if (tmp) isFuncDefine=1;'
                 \.'if(isFuncDefine) {tmp=match($0, /;$/); if (tmp) isFuncDefine=0;}'
@@ -33,6 +34,8 @@ if !exists("s:init")
                 \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[37m%s\033[0m\n",'
                 \.'     file,lnum,caller,$0; }'
                 \.'}'
+
+    let s:color_tag = '{$1=$2=""; lnum=$3;$3=""; file=$4;$4=""; printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m\n", file,lnum,$0;}'
 endif
 
 
@@ -78,7 +81,7 @@ function! cscope#run(option, query)
     if !CheckPlug('fzf.vim', 1) | return | endif
 
     let opts = {
-                \ 'source':  "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color . "'",
+                \ 'source':  "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color_cscope . "'",
                 \ 'options': ['--ansi', '--prompt', '> ',
                 \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
                 \             '--color', 'fg:188,fg+:222,bg+:#3a3a3a,hl+:104'],
@@ -99,7 +102,7 @@ function! cscope#preview(option, query, preview)
 
     if !CheckPlug('fzf.vim', 1) | return | endif
 
-    let cmdStr = "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color . "'"
+    let cmdStr = "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color_cscope . "'"
     silent! call s:log.info(__func__, cmdStr)"
 
     call fzf#vim#grep(
@@ -194,9 +197,9 @@ function! cscope#TagCat(mode, args, bang, preview)
 
     " <bang>0 function, <bang>1 symbol
     if a:bang
-        let command = "awk '($2 != \"function\" && $1~/". a:args. "/) {$1=$2=\"\"; print $4\"\033[30m:\"$3\":\033[0m\033[32m\"$5\" \"$6\" \"$7\" \033[0m\"$8}' ". tagfile
+        let command = "awk '($2 != \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
     else
-        let command = "awk '($2 == \"function\" && $1~/". a:args. "/) {$1=$2=\"\"; print $4\"\033[30m:\"$3\":\033[0m\033[32m\"$5\" \"$6\" \"$7\" \033[0m\"$8}' ". tagfile
+        let command = "awk '($2 == \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
     endif
 
     if !empty(command)
