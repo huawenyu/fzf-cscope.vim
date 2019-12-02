@@ -39,8 +39,8 @@ if !exists("s:init")
                 \.'tmp=match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);'
                 \.'if(tmp) {printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m(%s)\n",'
                 \.    ' file,lnum,arr[1],arr[3]; }'
-                \.'else {printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m%s\n",'
-                \.    ' file,lnum,$0,arr[1]; }'
+                \.'else {printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m\n",'
+                \.    ' file,lnum,$0; }'
                 \.'}'
 endif
 
