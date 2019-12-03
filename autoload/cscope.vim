@@ -27,7 +27,7 @@ if !exists("s:init")
     "\011  tab
     let s:color_cscope = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
                 \.'isFuncDefine=0;'
-                \.'tmp=match($0, /(\w+( )?){2,}\([^!@#$+%^]+?\)/); if (tmp) isFuncDefine=1;'
+                \.'tmp=match($0, /(\w+( )?){2,}\([^!@#$+%^]+?[\),]/); if (tmp) isFuncDefine=1;'
                 \.'if(isFuncDefine) {tmp=match($0, /;$/); if (tmp) isFuncDefine=0;}'
                 \.'if(isFuncDefine) {tmp=match($0, / = /); if (tmp) isFuncDefine=0;}'
                 \.'if(isFuncDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m \033[32m%s\033[0m\033[33m%s\033[0m\n",'
