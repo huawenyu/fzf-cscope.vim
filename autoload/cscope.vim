@@ -111,7 +111,7 @@ function! cscope#preview(option, query, preview)
     if !CheckPlug('fzf.vim', 1) | return | endif
 
     let cmdStr = "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color_cscope . "'"
-    silent! call s:log.info(__func__, cmdStr)
+    "silent! call s:log.info(__func__, cmdStr)
 
     call fzf#vim#grep(
                 \   cmdStr, 0,
@@ -170,7 +170,7 @@ function! cscope#FileCat(mode, args, bang, preview)
         let cmdStr = "ag -l --silent --nocolor -g '' ". "| awk '($1~/". a:args . "/)". s:color_fake_lnum. "' "
     endif
 
-    silent! call s:log.info(__func__, cmdStr)
+    "silent! call s:log.info(__func__, cmdStr)
     if empty(cmdStr)
         Files
         return
@@ -214,7 +214,7 @@ function! cscope#TagCat(mode, args, bang, preview)
         let cmdStr = "awk '($2 == \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
     endif
 
-    silent! call s:log.info(__func__, cmdStr)
+    "silent! call s:log.info(__func__, cmdStr)
     if !empty(cmdStr)
         call fzf#vim#grep(
                     \   cmdStr, 0,
