@@ -24,14 +24,15 @@ if !exists("s:init")
         echo "void render(SDL_Surface *screen)" | awk '/(?![a-z])[^\:,>,\.]([a-z,A-Z]+[_]*[a-z,A-Z]*)+[(]/{print $0}'
     endif
 
+    "\011  tab
     let s:color_cscope = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
                 \.'isFuncDefine=0;'
                 \.'tmp=match($0, /(\w+( )?){2,}\([^!@#$+%^]+?\)/); if (tmp) isFuncDefine=1;'
                 \.'if(isFuncDefine) {tmp=match($0, /;$/); if (tmp) isFuncDefine=0;}'
                 \.'if(isFuncDefine) {tmp=match($0, / = /); if (tmp) isFuncDefine=0;}'
-                \.'if(isFuncDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[33m%s\033[0m\n",'
+                \.'if(isFuncDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m \033[32m%s\033[0m\033[33m%s\033[0m\n",'
                 \.                          ' file,lnum,caller,$0; }'
-                \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m\011\033[32m%s()\033[0m\011\033[37m%s\033[0m\n",'
+                \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m \033[32m%s\033[0m\033[37m%s\033[0m\n",'
                 \.                          ' file,lnum,caller,$0; }'
                 \.'}'
 
