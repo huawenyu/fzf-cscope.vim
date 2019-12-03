@@ -37,11 +37,13 @@ if !exists("s:init")
 
     let s:color_tag = '{$1=$2=""; lnum=$3;$3=""; file=$4;$4="";'
                 \.'tmp=match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);'
-                \.'if(tmp) {printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m(%s)\n",'
+                \.'if(tmp) {printf "%s\033[30m:%s:0\033[0m\033[33m%s\033[0m(%s)\n",'
                 \.    ' file,lnum,arr[1],arr[3]; }'
-                \.'else {printf "%s\033[30m:%s\033[0m\033[33m%s\033[0m\n",'
+                \.'else {printf "%s\033[30m:%s:0\033[0m\033[33m%s\033[0m\n",'
                 \.    ' file,lnum,$0; }'
                 \.'}'
+
+    let s:color_fake_lnum = '{ printf "%s\033[30m:0:0\033[0m\n", $0; }'
 endif
 
 
@@ -109,7 +111,7 @@ function! cscope#preview(option, query, preview)
     if !CheckPlug('fzf.vim', 1) | return | endif
 
     let cmdStr = "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color_cscope . "'"
-    silent! call s:log.info(__func__, cmdStr)"
+    silent! call s:log.info(__func__, cmdStr)
 
     call fzf#vim#grep(
                 \   cmdStr, 0,
@@ -153,27 +155,29 @@ endfunction
 
 
 function! cscope#FileCat(mode, args, bang, preview)
+    let __func__ = "cscope#FileCat() "
+
     if !CheckPlug('fzf.vim', 1)
         return
     endif
-    let fake_lnum = '{ printf "%s:\033[30m0:0:0\033[0m\n", $0,0,0,0; }'
 
-    let command = ""
+    let cmdStr = ""
     if !a:bang && filereadable("./.cscope.files")
-        let command = "awk '($1~/". a:args . "/)". fake_lnum. "' ./.cscope.files"
+        let cmdStr = "awk '($1~/". a:args . "/)". s:color_fake_lnum. "' ./.cscope.files"
     elseif executable('rg')
-        let command = 'rg --no-heading --files --color=never --fixed-strings'. "| awk '($1~/". a:args . "/){print $0\":\033[30m0:0:0\033[0m\"}' "
+        let cmdStr = 'rg --no-heading --files --color=never --fixed-strings'. "| awk '($1~/". a:args . "/)". s:color_fake_lnum. "' "
     elseif executable('ag')
-        let command = "ag -l --silent --nocolor -g '' ". "| awk '($1~/". a:args . "/) {print $0\":\033[30m0:0:0\033[0m\"}' "
+        let cmdStr = "ag -l --silent --nocolor -g '' ". "| awk '($1~/". a:args . "/)". s:color_fake_lnum. "' "
     endif
 
-    if empty(command)
+    silent! call s:log.info(__func__, cmdStr)
+    if empty(cmdStr)
         Files
         return
     endif
 
     call fzf#vim#grep(
-                \   command, 1,
+                \   cmdStr, 1,
                 \   a:preview ? fzf#vim#with_preview('up:60%')
                 \           : fzf#vim#with_preview('right:50%:hidden', '?'),
                 \   a:preview)
@@ -181,6 +185,8 @@ endfunction
 
 
 function! cscope#TagCat(mode, args, bang, preview)
+    let __func__ = "cscope#TagCat() "
+
     if !CheckPlug('fzf.vim', 1)
         return
     endif
@@ -203,20 +209,21 @@ function! cscope#TagCat(mode, args, bang, preview)
 
     " <bang>0 function, <bang>1 symbol
     if a:bang
-        let command = "awk '($2 != \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
+        let cmdStr = "awk '($2 != \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
     else
-        let command = "awk '($2 == \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
+        let cmdStr = "awk '($2 == \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
     endif
 
-    if !empty(command)
+    silent! call s:log.info(__func__, cmdStr)
+    if !empty(cmdStr)
         call fzf#vim#grep(
-                    \   command, 0,
+                    \   cmdStr, 0,
                     \   a:preview ? fzf#vim#with_preview('up:60%')
                     \          : fzf#vim#with_preview('right:50%:hidden', '?'),
                     \   a:preview)
 
         "call fzf#run({
-        "            \ 'source': command,
+        "            \ 'source': cmdStr,
         "            \ 'sink':   'e',
         "            \ 'options': '-m -x +s',
         "            \ 'window':  'enew' })
