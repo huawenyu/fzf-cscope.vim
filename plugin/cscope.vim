@@ -107,9 +107,6 @@ if exists("g:fzf_cscope_map") && g:fzf_cscope_map
         xnoremap <leader>ff                  :<c-u>TagCatV <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
         xnoremap <leader><leader>ff          :<c-u>TagCatPreV <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
 
-        nnoremap <silent> <Leader>o          :FileCatN<cr>
-        nnoremap <silent> <Leader><leader>o  :FileCatN!<cr>
-
 
         ""xnoremap <silent> ;o  :FileCatV<cr>
         ""xnoremap <silent> ;O  :FileCatV!<cr>
