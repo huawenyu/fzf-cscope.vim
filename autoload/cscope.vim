@@ -49,6 +49,7 @@ endif
 
 
 function! cscope#LoadCscope()
+    let l:__func__ = "cscope#LoadCscope() "
     if exists("s:cscope_db_loaded") && s:cscope_db_loaded
         return
     endif

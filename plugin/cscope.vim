@@ -7,10 +7,15 @@ else
 endif
 
 
-"nvim should load cscope db by script
-autocmd BufEnter * call cscope#LoadCscope()
-"autocmd BufEnter /* call cscope#ReLoadCscope()
-"autocmd BufNewFile,BufRead * call cscope#LoadCscope()
+
+augroup fzf_cscope
+    autocmd!
+
+    "nvim should load cscope db by script
+    autocmd BufEnter * call cscope#LoadCscope()
+    "autocmd BufEnter /* call cscope#ReLoadCscope()
+    "autocmd BufNewFile,BufRead * call cscope#LoadCscope()
+augroup end
 
 command! Cscope :call cscope#ReLoadCscope()
 
