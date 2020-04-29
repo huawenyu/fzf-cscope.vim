@@ -107,10 +107,11 @@ if exists("g:fzf_cscope_map") && g:fzf_cscope_map
         xnoremap <leader>fi                  :<c-u>TagCatV! <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
         xnoremap <leader><leader>fi          :<c-u>TagCatPreV! <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
 
-        nnoremap <leader>ff                  :TagCatN <C-R>=printf("%s", expand('<cword>'))<cr>
-        nnoremap <leader><leader>ff          :TagCatPreN <C-R>=printf("%s", expand('<cword>'))<cr>
-        xnoremap <leader>ff                  :<c-u>TagCatV <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
-        xnoremap <leader><leader>ff          :<c-u>TagCatPreV <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
+        " Leave ff to format '='
+        "nnoremap <leader>ff                  :TagCatN <C-R>=printf("%s", expand('<cword>'))<cr>
+        "nnoremap <leader><leader>ff          :TagCatPreN <C-R>=printf("%s", expand('<cword>'))<cr>
+        "xnoremap <leader>ff                  :<c-u>TagCatV <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
+        "xnoremap <leader><leader>ff          :<c-u>TagCatPreV <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
 
 
         ""xnoremap <silent> ;o  :FileCatV<cr>
@@ -122,7 +123,7 @@ if exists("g:fzf_cscope_map") && g:fzf_cscope_map
         "nnoremap <silent> <a-q> :BLines<cr>
     else
         "nmap <leader>] :cs find g <C-R>=expand("<cword>")<CR><CR>
-        nmap <leader>ff :cs find f <C-R>=expand("<cfile>")<CR>
+        "nmap <leader>ff :cs find f <C-R>=expand("<cfile>")<CR>
         nmap <leader>fs :cs find s <C-R>=expand("<cword>")<CR><CR>
         nmap <leader>fg :cs find g <C-R>=expand("<cword>")<CR><CR>
         nmap <leader>fc :cs find c <C-R>=expand("<cword>")<CR><CR>
