@@ -99,13 +99,13 @@ if exists("g:fzf_cscope_map") && g:fzf_cscope_map
     if CheckPlug('fzf.vim', 1)
         nnoremap <silent> <Leader>fs         :call cscope#run('0', expand('<cword>'))<CR>
         nnoremap <silent> <Leader>fc         :call cscope#run('2', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader><leader>fs :call cscope#preview('0', expand('<cword>'), 1)<CR>
-        nnoremap <silent> <Leader><leader>fc :call cscope#preview('2', expand('<cword>'), 1)<CR>
+        nnoremap <silent> <Leader>fS         :call cscope#preview('0', expand('<cword>'), 1)<CR>
+        nnoremap <silent> <Leader>fC         :call cscope#preview('2', expand('<cword>'), 1)<CR>
 
-        nnoremap <leader>fi                  :TagCatN! <C-R>=printf("%s", expand('<cword>'))<cr>
-        nnoremap <leader><leader>fi          :TagCatPreN! <C-R>=printf("%s", expand('<cword>'))<cr>
-        xnoremap <leader>fi                  :<c-u>TagCatV! <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
-        xnoremap <leader><leader>fi          :<c-u>TagCatPreV! <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
+        nnoremap <silent> <leader>fi         :TagCatN! <C-R>=printf("%s", expand('<cword>'))<cr>
+        nnoremap <silent> <leader>fI         :TagCatPreN! <C-R>=printf("%s", expand('<cword>'))<cr>
+        xnoremap <silent> <leader>fi         :<c-u>TagCatV! <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
+        xnoremap <silent> <leader>fI         :<c-u>TagCatPreV! <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
 
         " Leave ff to format '='
         "nnoremap <leader>ff                  :TagCatN <C-R>=printf("%s", expand('<cword>'))<cr>
