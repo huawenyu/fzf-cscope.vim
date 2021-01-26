@@ -31,6 +31,9 @@ command! -bang -nargs=* TagCatV     call cscope#TagCat(1,  <q-args>, <bang>0, 0)
 command! -bang -nargs=* TagCatPreN  call cscope#TagCat(0,  <q-args>, <bang>0, 1)
 command! -bang -nargs=* TagCatPreV  call cscope#TagCat(1,  <q-args>, <bang>0, 1)
 
+command! -bang -nargs=* CscopeText  call cscope#preview('4', <q-args>, <bang>0)
+command! -bang -nargs=* CscopeGrep  call cscope#preview('6', <q-args>, <bang>0)
+
 
 if has('cscope')
     set cscopetagorder=0
@@ -83,6 +86,7 @@ endif
 "    6    Find this egrep pattern:
 "    7    Find this file:
 "    8    Find files #including this file:
+"    9:   Find places where this symbol is assigned a value
 "
 " +ctags
 "         :tags   see where you currently are in the tag stack
@@ -97,30 +101,42 @@ endif
 
 if exists("g:fzf_cscope_map") && g:fzf_cscope_map
     if CheckPlug('fzf.vim', 1)
-        nnoremap <silent> <Leader>fs         :call cscope#run('0', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>fc         :call cscope#run('2', expand('<cword>'))<CR>
-        nnoremap <silent> <Leader>fS         :call cscope#preview('0', expand('<cword>'), 1)<CR>
-        nnoremap <silent> <Leader>fC         :call cscope#preview('2', expand('<cword>'), 1)<CR>
+        " File
+        " FileCatV, FileCatPreN (preview)
+        nnoremap <silent> <leader>ff    :FileCatN<cr>
+        vnoremap <silent> <leader>ff    :<c-u>FileCatN<cr>
+        " All files
+        nnoremap <silent> <leader>fF    :FileCatN!<cr>
+        vnoremap <silent> <leader>fF    :<c-u>FileCatN!<cr>
 
-        nnoremap <silent> <leader>fi         :TagCatN! <C-R>=printf("%s", expand('<cword>'))<cr>
-        nnoremap <silent> <leader>fI         :TagCatPreN! <C-R>=printf("%s", expand('<cword>'))<cr>
-        xnoremap <silent> <leader>fi         :<c-u>TagCatV! <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
-        xnoremap <silent> <leader>fI         :<c-u>TagCatPreV! <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
+        " Function called
+        nnoremap <silent> <leader>fc    :call cscope#preview('3', 'n', 1)<cr>
+        vnoremap <silent> <leader>fc    :<c-u>call cscope#preview('3', 'v', 1)<cr>
 
-        " Leave ff to format '='
-        "nnoremap <leader>ff                  :TagCatN <C-R>=printf("%s", expand('<cword>'))<cr>
-        "nnoremap <leader><leader>ff          :TagCatPreN <C-R>=printf("%s", expand('<cword>'))<cr>
-        "xnoremap <leader>ff                  :<c-u>TagCatV <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
-        "xnoremap <leader><leader>ff          :<c-u>TagCatPreV <C-R>=printf("%s", hw#misc#GetSelection('o')[0])<cr>
+        " Function calling
+        nnoremap <silent> <leader>fC    :call cscope#preview('2', 'n', 1)<cr>
+        vnoremap <silent> <leader>fC    :<c-u>call cscope#preview('2', 'v', 1)<cr>
 
+        " symbol
+        nnoremap <silent> <leader>fs    :call cscope#preview('0', 'n', 1)<cr>
+        vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('0', 'v', 1)<cr>
+        " symbol assign value
+        nnoremap <silent> <leader>fS    :call cscope#preview('9', 'n', 1)<cr>
+        vnoremap <silent> <leader>fS    :<c-u>call cscope#preview('9', 'v', 1)<cr><cr>
 
-        ""xnoremap <silent> ;o  :FileCatV<cr>
-        ""xnoremap <silent> ;O  :FileCatV!<cr>
-        ""nnoremap <silent> ;O  :FileCatPreN<cr>
-        ""xnoremap <silent> ;O  :FileCatPreV<cr>
+        " tExt
+        nnoremap          <leader>fe    :CscopeText! <c-r>=utils#GetSelected('')<cr>
+        vnoremap          <leader>fe    :<c-u>CscopeText! <c-r>=utils#GetSelected('')<cr>
+        nnoremap          <leader>fE    :CscopeGrep! <c-r>=utils#GetSelected('')<cr>
+        vnoremap          <leader>fE    :<c-u>CscopeGrep! <c-r>=utils#GetSelected('')<cr>
 
-        "nnoremap <silent> <a-g> :RgType <C-R>=printf("%s", expand('<cword>'))<cr><cr>
-        "nnoremap <silent> <a-q> :BLines<cr>
+        " Buffers
+        nnoremap <silent> <leader>fb    :Buffers<cr>
+        vnoremap <silent> <leader>fb    :<c-u>Buffers<cr>
+
+        " Lines of current buffer
+        nnoremap <silent> <leader>fl    :BLines<cr>
+        vnoremap <silent> <leader>fl    :<c-u>BLines<cr>
     else
         "nmap <leader>] :cs find g <C-R>=expand("<cword>")<CR><CR>
         "nmap <leader>ff :cs find f <C-R>=expand("<cfile>")<CR>

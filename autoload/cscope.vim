@@ -112,14 +112,27 @@ function! cscope#preview(option, query, preview)
 
     if !CheckPlug('fzf.vim', 1) | return | endif
 
-    let cmdStr = "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color_cscope . "'"
-    "silent! call s:log.info(__func__, cmdStr)
+    if a:query ==# 'n'
+        let query =  utils#GetSelected('')
+    elseif a:query ==# 'v'
+        let query = utils#GetSelected('')
+    else
+        let query = a:query
+    endif
+
+    let cmdStr = "cscope -dL". a:option. " '". query. "' | awk '". s:color_cscope . "'"
+    silent! call s:log.info(__func__, cmdStr)
 
     call fzf#vim#grep(
                 \   cmdStr, 0,
                 \   a:preview ? fzf#vim#with_preview('up:60%')
                 \           : fzf#vim#with_preview('right:50%:hidden', '?'),
                 \   a:preview)
+endfunction
+
+
+function! cscope#preview_text(option, query, preview)
+    call cscope#preview(a:o, a:query, a:preview)
 endfunction
 
 
