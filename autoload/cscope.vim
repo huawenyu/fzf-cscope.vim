@@ -113,15 +113,24 @@ function! cscope#preview(option, query, preview)
     if !CheckPlug('fzf.vim', 1) | return | endif
 
     if a:query ==# 'n'
-        let query =  utils#GetSelected('')
+        silent! call s:log.info(__func__, " from nmap ", a:query)
+        let query = utils#GetSelected('n')
     elseif a:query ==# 'v'
-        let query = utils#GetSelected('')
+        silent! call s:log.info(__func__, " from vmap ", a:query)
+        let query = utils#GetSelected('v')
     else
+        silent! call s:log.info(__func__, " from N/A ", a:query)
         let query = a:query
     endif
 
-    let cmdStr = "cscope -dL". a:option. " '". query. "' | awk '". s:color_cscope . "'"
+    let char1st = strcharpart(query, 0, 1)
+    if char1st !=# '"' && char1st !=# "'"
+        let query = "'". query. "'"
+    endif
+
+    let cmdStr = "cscope -dL". a:option. " ". query
     silent! call s:log.info(__func__, cmdStr)
+    let cmdStr = cmdStr. " | awk '". s:color_cscope . "'"
 
     call fzf#vim#grep(
                 \   cmdStr, 0,
@@ -264,7 +273,7 @@ endfunction
 
 function! cscope#FindFunc(sel)
     if a:sel
-        return "FindFunc ".utils#GetSelected("")." "
+        return "FindFunc ".utils#GetSelected('v')." "
     else
         return "FindFunc ".expand('<cword>')." "
     endif
@@ -272,7 +281,7 @@ endfunction
 
 function! cscope#FindVar(sel)
     if a:sel
-        return "FindVar ".utils#GetSelected("")." "
+        return "FindVar ".utils#GetSelected('v')." "
     else
         return "FindVar ".expand('<cword>')." "
     endif
