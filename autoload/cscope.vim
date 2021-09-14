@@ -131,6 +131,7 @@ function! cscope#preview(option, query, preview)
     let cmdStr = "cscope -dL". a:option. " ". query
     silent! call s:log.info(__func__, cmdStr)
     let cmdStr = cmdStr. " | awk '". s:color_cscope . "'"
+    "echomsg "wilson: ". cmdStr
 
     call fzf#vim#grep(
                 \   cmdStr, 0,
