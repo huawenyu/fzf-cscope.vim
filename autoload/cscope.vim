@@ -2,49 +2,131 @@ if !exists("s:init")
     let s:init = 1
     silent! let s:log = logger#getLogger(expand('<sfile>:t'))
 
-    if 0
-        echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
-        echo "render(SDL_Surface *screen)"      | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
-        echo "render(screen)"                   | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
-        echo "render()"                         | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+    " echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+    " echo "render(SDL_Surface *screen)"      | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+    " echo "render(screen)"                   | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+    " echo "render()"                         | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
 
-        echo "void render(SDL_Surface *screen)" | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
-        echo "render(SDL_Surface *screen)"      | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
-        echo "render(screen)"                   | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+    " echo "void render(SDL_Surface *screen)" | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+    " echo "render(SDL_Surface *screen)"      | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+    " echo "render(screen)"                   | awk '/^([\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
 
-        echo "render(screen)"                   | awk '/^[a-zA-Z\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
-        echo "void render(SDL_Surface *screen)" | awk '/^([_a-zA-Z])+?([ \*]+)*?\(/{print $0}'
-        echo "render(SDL_Surface *screen)"      | awk '/^([a-zA-Z\w\* ]){1,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+    " echo "render(screen)"                   | awk '/^[a-zA-Z\w\*]+( )*?){2,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
+    " echo "void render(SDL_Surface *screen)" | awk '/^([_a-zA-Z])+?([ \*]+)*?\(/{print $0}'
+    " echo "render(SDL_Surface *screen)"      | awk '/^([a-zA-Z\w\* ]){1,}\(([^!@#$+%^;]+?)\)(?!\s*;)/{print $0}'
 
-        echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
-        echo "void render(SDL_Surface *screen)" | awk '/^([\w\*]+( )*?){2,}\([^!@#$+%^;]+?\)/{print $0}'
-        echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )*?){2,}\([^!@#$+%^;]+?\)/{print $0}'
+    " echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )?){2,}\([^!@#$+%^]+?\)/{print $0}'
+    " echo "void render(SDL_Surface *screen)" | awk '/^([\w\*]+( )*?){2,}\([^!@#$+%^;]+?\)/{print $0}'
+    " echo "void render(SDL_Surface *screen)" | awk '/^(\w+( )*?){2,}\([^!@#$+%^;]+?\)/{print $0}'
 
-        echo "void render(SDL_Surface *screen)" | awk '/([a-zA-Z]\w\*)\s+(\w+)\s*\([^\)]*\)\s*(;|{))/{print $0}'
-        echo "void render(SDL_Surface *screen)" | awk '/(?![a-z])[^\:,>,\.]([a-z,A-Z]+[_]*[a-z,A-Z]*)+[(]/{print $0}'
-    endif
+    " echo "void render(SDL_Surface *screen)" | awk '/([a-zA-Z]\w\*)\s+(\w+)\s*\([^\)]*\)\s*(;|{))/{print $0}'
+    " echo "void render(SDL_Surface *screen)" | awk '/(?![a-z])[^\:,>,\.]([a-z,A-Z]+[_]*[a-z,A-Z]*)+[(]/{print $0}'
 
+    " Check it: https://ideone.com/
     "\011  tab
-    let s:color_cscope = '{file=$1;$1 =""; lnum=$3;$3=""; caller=$2;$2="";'
-                \.'isFuncDefine=0;'
-                \.'tmp=match($0, /(\w+( )?){2,}\([^!@#$+%^]+?[\),]/); if (tmp) isFuncDefine=1;'
-                \.'if(isFuncDefine) {tmp=match($0, /;$/); if (tmp) isFuncDefine=0;}'
-                \.'if(isFuncDefine) {tmp=match($0, / = /); if (tmp) isFuncDefine=0;}'
-                \.'if(isFuncDefine) {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m \033[32m%s\033[0m\033[33m%s\033[0m\n",'
-                \.                          ' file,lnum,caller,$0; }'
-                \.'else    {printf "\033[34m%s\033[0m:\033[35m%s:0\033[0m \033[32m%s\033[0m\033[37m%s\033[0m\n",'
-                \.                          ' file,lnum,caller,$0; }'
-                \.'}'
+    let s:color_cscope =<< END
+        | awk '
+        function color1(txt) { return "\033[34m" txt "\033[0m"; }
+        function color2(txt) { return "\033[35m" txt "\033[0m"; }
+        function color3(txt) { return "\033[32m" txt "\033[0m"; }
+        function color4(txt) { return "\033[37m" txt "\033[0m"; }
+        function color5(txt) { return "\033[33m" txt "\033[0m"; }
 
-    let s:color_tag = '{$1=$2=""; lnum=$3;$3=""; file=$4;$4="";'
-                \.'tmp=match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);'
-                \.'if(tmp) {printf "%s\033[30m:%s:0\033[0m\033[33m%s\033[0m(%s)\n",'
-                \.    ' file,lnum,arr[1],arr[3]; }'
-                \.'else {printf "%s\033[30m:%s:0\033[0m\033[33m%s\033[0m\n",'
-                \.    ' file,lnum,$0; }'
-                \.'}'
+        BEGIN {}
+        {
 
-    let s:color_fake_lnum = '{ printf "%s\033[30m:0:0\033[0m\n", $0; }'
+            file   = $1; $1 = "";
+            lnum   = $3; $3 = "";
+            caller = $2; $2 = "";
+
+            isFunc = 0;
+            tmp = match($0, /(\w+( )?){2,}\([^!@#$+%^]+?[\),]/);
+            if (tmp) {
+                tmp = match($0, /;$/);
+                if (! tmp) {
+                    tmp=match($0, / = /);
+                    if (! tmp)
+                        isFunc = 1;
+                }
+            }
+
+            if (isFunc)
+                print color1(file) ":" color2(lnum) ":0: " color3(caller) color5($0);
+            else
+                print color1(file) ":" color2(lnum) ":0: " color3(caller) color4($0);
+        }
+        END {}
+        '
+END
+
+    let s:color_tag_func =<< END
+        | awk -v env_ftxt="$ftxt" '
+        function color1(txt) { return "\033[34m" txt "\033[0m"; }
+        function color2(txt) { return "\033[35m" txt "\033[0m"; }
+        function color3(txt) { return "\033[32m" txt "\033[0m"; }
+        function color4(txt) { return "\033[37m" txt "\033[0m"; }
+        function color5(txt) { return "\033[33m" txt "\033[0m"; }
+
+        BEGIN {}
+        ($2 == "function" && $1 ~ env_ftxt) {
+
+            $1 = $2 = "";
+            lnum = $3; $3 = "";
+            file = $4; $4 = "";
+
+            tmp = match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);
+            if (tmp)
+                print file ":" color1(lnum) ":0:" color2(arr[1]) "(" arr[3] ")";
+            else
+                print file ":" color1(lnum) ":0:" color2($0);
+        }
+        END {}
+        '
+END
+
+    let s:color_tag_no_func =<< END
+        | awk -v env_ftxt="$ftxt" '
+        function color1(txt) { return "\033[34m" txt "\033[0m"; }
+        function color2(txt) { return "\033[35m" txt "\033[0m"; }
+        function color3(txt) { return "\033[32m" txt "\033[0m"; }
+        function color4(txt) { return "\033[37m" txt "\033[0m"; }
+        function color5(txt) { return "\033[33m" txt "\033[0m"; }
+
+        BEGIN {}
+        ($2 != "function" && $1 ~ env_ftxt) {
+
+            $1 = $2 = "";
+            lnum = $3; $3 = "";
+            file = $4; $4 = "";
+
+            tmp = match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);
+            if (tmp)
+                print file ":" color1(lnum) ":0:" color2(arr[1]) "(" arr[3] ")";
+            else
+                print file ":" color1(lnum) ":0:" color2($0);
+        }
+        END {}
+        '
+END
+
+
+    let s:color_fake_lnum =<< END
+        | awk -v env_ftxt="$ftxt" '
+        function color0(txt) { return "\033[30m" txt "\033[0m"; }
+        function color1(txt) { return "\033[34m" txt "\033[0m"; }
+        function color2(txt) { return "\033[35m" txt "\033[0m"; }
+        function color3(txt) { return "\033[32m" txt "\033[0m"; }
+        function color4(txt) { return "\033[37m" txt "\033[0m"; }
+        function color5(txt) { return "\033[33m" txt "\033[0m"; }
+
+        BEGIN {}
+        ($1 ~ env_ftxt) {
+            print color1($0) color0(":0:0:");
+        }
+        END {}
+        '
+END
+
 endif
 
 
@@ -88,30 +170,15 @@ endfunction
 
 
 function! cscope#run(option, query)
-    if !CheckPlug('fzf.vim', 1) | return | endif
-
-    let opts = {
-                \ 'source':  "cscope -dL" . a:option . " " . a:query . " | awk '" . s:color_cscope . "'",
-                \ 'options': ['--ansi', '--prompt', '> ',
-                \             '--multi', '--bind', 'alt-a:select-all,alt-d:deselect-all',
-                \             '--color', 'fg:188,fg+:222,bg+:#3a3a3a,hl+:104'],
-                \ 'down': '40%'
-                \ }
-    function! opts.sink(lines) 
-        let data = split(a:lines)
-        let file = split(data[0], ":")
-        execute 'e ' . '+' . file[1] . ' ' . file[0]
-    endfunction
-
-    call fzf#run(opts)
+    call fzf#vim#grep(
+                \   'cscope -dL'..a:option..' '..a:query..join(s:color_cscope),
+                \   1,
+                \   fzfpreview#p(<bang>0),
+                \   <bang>0)
 endfunction
 
 
 function! cscope#preview(option, query, preview)
-    let __func__ = "cscope#preview() "
-
-    if !CheckPlug('fzf.vim', 1) | return | endif
-
     if a:query ==# 'n'
         silent! call s:log.info(__func__, " from nmap ", a:query)
         let query = utils#GetSelected('n')
@@ -128,15 +195,9 @@ function! cscope#preview(option, query, preview)
         let query = "'". query. "'"
     endif
 
-    let cmdStr = "cscope -dL". a:option. " ". query
-    silent! call s:log.info(__func__, cmdStr)
-    let cmdStr = cmdStr. " | awk '". s:color_cscope . "'"
-    "echomsg "wilson: ". cmdStr
-
-    call fzf#vim#grep(
-                \   cmdStr, 0,
-                \   a:preview ? fzf#vim#with_preview('up:60%')
-                \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+    call fzf#vim#grep('cscope -dL'..a:option..' '..query..join(s:color_cscope),
+                \   1,
+                \   fzfpreview#p(a:preview),
                 \   a:preview)
 endfunction
 
@@ -179,20 +240,16 @@ function! cscope#Query(option)
 endfunction
 
 
-function! cscope#FileCat(mode, args, bang, preview)
-    let __func__ = "cscope#FileCat() "
+function! cscope#FileFilter(args, bang)
+    let __func__ = "cscope#File() "
 
-    if !CheckPlug('fzf.vim', 1)
-        return
-    endif
-
-    let cmdStr = ""
+    let $ftxt = a:args
     if !a:bang && filereadable("./.cscope.files")
-        let cmdStr = "awk '($1~/". a:args . "/)". s:color_fake_lnum. "' ./.cscope.files"
+        let cmdStr = "cat ./.cscope.files"..join(s:color_fake_lnum)
     elseif executable('rg')
-        let cmdStr = 'rg --no-heading --files --color=never --fixed-strings'. "| awk '($1~/". a:args . "/)". s:color_fake_lnum. "' "
+        let cmdStr = 'rg --no-heading --files --color=never --fixed-strings'..join(s:color_fake_lnum)
     elseif executable('ag')
-        let cmdStr = "ag -l --silent --nocolor -g '' ". "| awk '($1~/". a:args . "/)". s:color_fake_lnum. "' "
+        let cmdStr = "ag -l --silent --nocolor -g '' "..join(s:color_fake_lnum)
     endif
 
     "silent! call s:log.info(__func__, cmdStr)
@@ -201,20 +258,15 @@ function! cscope#FileCat(mode, args, bang, preview)
         return
     endif
 
-    call fzf#vim#grep(
-                \   cmdStr, 1,
-                \   a:preview ? fzf#vim#with_preview('up:60%')
-                \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-                \   a:preview)
+    call fzf#vim#grep(cmdStr,
+                \   1,
+                \   fzfpreview#p(1),
+                \   1)
 endfunction
 
 
-function! cscope#TagCat(mode, args, bang, preview)
-    let __func__ = "cscope#TagCat() "
-
-    if !CheckPlug('fzf.vim', 1)
-        return
-    endif
+function! cscope#TagFilter(args, bang)
+    let __func__ = "cscope#TagFilter() "
 
     let tagfile = ''
     if !exists('g:fuzzy_file_tag')
@@ -228,30 +280,32 @@ function! cscope#TagCat(mode, args, bang, preview)
     endfor
 
     if empty(tagfile)
-        echomsg "tagx file not exist!"
+        Tags
         return
     endif
 
     " <bang>0 function, <bang>1 symbol
-    if a:bang
-        let cmdStr = "awk '($2 != \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
+    if empty(a:args) && !empty(g:fzf_cscope_tag_filter)
+        let $ftxt = g:fzf_cscope_tag_filter
     else
-        let cmdStr = "awk '($2 == \"function\" && $1~/". a:args. "/)". s:color_tag. "' ". tagfile
+        let $ftxt = a:args
+    endif
+
+    if a:bang
+        let cmdStr = 'cat '..tagfile..join(s:color_tag_no_func)
+    else
+        let cmdStr = 'cat '..tagfile..join(s:color_tag_func)
     endif
 
     "silent! call s:log.info(__func__, cmdStr)
     if !empty(cmdStr)
-        call fzf#vim#grep(
-                    \   cmdStr, 0,
-                    \   a:preview ? fzf#vim#with_preview('up:60%')
-                    \          : fzf#vim#with_preview('right:50%:hidden', '?'),
-                    \   a:preview)
-
-        "call fzf#run({
-        "            \ 'source': cmdStr,
-        "            \ 'sink':   'e',
-        "            \ 'options': '-m -x +s',
-        "            \ 'window':  'enew' })
+        call fzf#vim#grep(cmdStr,
+                \   1,
+                \   fzfpreview#p(1, { 'options': '--delimiter=: --with-nth=4..' }),
+                \   1)
+    else
+        Tags
+        return
     endif
 endfunction
 

@@ -1,11 +1,7 @@
-" Version:      1.2
-
-if exists('g:loaded_fzf_cscope') || &compatible
-  finish
-else
-  let g:loaded_fzf_cscope = 'yes'
+if exists('g:loaded_hw_fzfcscope') || &compatible
+    finish
 endif
-
+let g:loaded_hw_fzfcscope = 1
 
 
 augroup fzf_cscope
@@ -19,20 +15,10 @@ augroup end
 
 command! Cscope :call cscope#ReLoadCscope()
 
-command! -bang -nargs=* FileCatN    call cscope#FileCat(0, <q-args>, <bang>0, 0)
-command! -bang -nargs=* FileCatV    call cscope#FileCat(1, <q-args>, <bang>0, 0)
-
-command! -bang -nargs=* FileCatPreN call cscope#FileCat(0, <q-args>, <bang>0, 1)
-command! -bang -nargs=* FileCatPreV call cscope#FileCat(1, <q-args>, <bang>0, 1)
-
-command! -bang -nargs=* TagCatN     call cscope#TagCat(0,  <q-args>, <bang>0, 0)
-command! -bang -nargs=* TagCatV     call cscope#TagCat(1,  <q-args>, <bang>0, 0)
-
-command! -bang -nargs=* TagCatPreN  call cscope#TagCat(0,  <q-args>, <bang>0, 1)
-command! -bang -nargs=* TagCatPreV  call cscope#TagCat(1,  <q-args>, <bang>0, 1)
-
-command! -bang -nargs=* CscopeText  call cscope#preview('4', <q-args>, <bang>0)
-command! -bang -nargs=* CscopeGrep  call cscope#preview('6', <q-args>, <bang>0)
+command! -bang -nargs=* CSFileFilter    call cscope#FileFilter(<q-args>, <bang>0)
+command! -bang -nargs=* CSTagFilter     call cscope#TagFilter(<q-args>, <bang>0)
+command! -bang -nargs=* CscopeText      call cscope#preview('4', <q-args>, <bang>0)
+command! -bang -nargs=* CscopeGrep      call cscope#preview('6', <q-args>, <bang>0)
 
 
 if has('cscope')
@@ -100,54 +86,55 @@ endif
 "set cscopequickfix=s0,c0,d0,i0,t-,e-
 
 if exists("g:fzf_cscope_map") && g:fzf_cscope_map
-    if CheckPlug('fzf.vim', 1)
-        " File
-        " FileCatV, FileCatPreN (preview)
-        nnoremap <silent> <leader>ff    :FileCatN<cr>
-        vnoremap <silent> <leader>ff    :<c-u>FileCatN<cr>
-        " All files
-        nnoremap <silent> <leader>fF    :FileCatN!<cr>
-        vnoremap <silent> <leader>fF    :<c-u>FileCatN!<cr>
-
-        " Function called
-        nnoremap <silent> <leader>fc    :call cscope#preview('3', 'n', 1)<cr>
-        vnoremap <silent> <leader>fc    :<c-u>call cscope#preview('3', 'v', 1)<cr>
-
-        " Function calling
-        nnoremap <silent> <leader>fC    :call cscope#preview('2', 'n', 1)<cr>
-        vnoremap <silent> <leader>fC    :<c-u>call cscope#preview('2', 'v', 1)<cr>
-
-        " symbol
-        nnoremap <silent> <leader>fs    :call cscope#preview('0', 'n', 1)<cr>
-        vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('0', 'v', 1)<cr>
-        " symbol assign value
-        nnoremap <silent> <leader>fS    :call cscope#preview('9', 'n', 1)<cr>
-        vnoremap <silent> <leader>fS    :<c-u>call cscope#preview('9', 'v', 1)<cr><cr>
-
-        " tExt
-        nnoremap          <leader>fe    :CscopeText! <c-r>=utils#GetSelected('')<cr>
-        vnoremap          <leader>fe    :<c-u>CscopeText! <c-r>=utils#GetSelected('')<cr>
-        nnoremap          <leader>fE    :CscopeGrep! <c-r>=utils#GetSelected('')<cr>
-        vnoremap          <leader>fE    :<c-u>CscopeGrep! <c-r>=utils#GetSelected('')<cr>
-
-        " Buffers
-        nnoremap <silent> <leader>fb    :Buffers<cr>
-        vnoremap <silent> <leader>fb    :<c-u>Buffers<cr>
-
-        " Lines of current buffer
-        nnoremap <silent> <leader>fl    :BLines<cr>
-        vnoremap <silent> <leader>fl    :<c-u>BLines<cr>
-    else
-        "nmap <leader>] :cs find g <C-R>=expand("<cword>")<CR><CR>
-        "nmap <leader>ff :cs find f <C-R>=expand("<cfile>")<CR>
-        nmap <leader>fs :cs find s <C-R>=expand("<cword>")<CR><CR>
-        nmap <leader>fg :cs find g <C-R>=expand("<cword>")<CR><CR>
-        nmap <leader>fc :cs find c <C-R>=expand("<cword>")<CR><CR>
-        nmap <leader>fd :cs find d <C-R>=expand("<cword>")<CR><CR>
-        nmap <leader>fe :cs find e <C-R>=expand("<cword>")<CR>
-        nmap <leader>ft :call cscope#Symbol() <CR>
+    " symbol
+    " 1. Please install 'batcat' first: sudo apt install bat
+    " 2. Then check the config if batcat can't works:  batcat --diagnostic
+    if !executable('batcat')
+        echom "[fzf-cscope.vim] Please install `batcat` for fzf-preview: sudo apt install bat"
+        finish
     endif
+
+    if !executable('gawk')
+        echom "[fzf-cscope.vim] Please install `gawk` for tags filter: sudo apt install gawk"
+        finish
+    endif
+
+    " File
+    " FileCatV, FileCatPreN (preview)
+    nnoremap <silent> <leader>ff    :CSFileFilter<cr>
+    vnoremap <silent> <leader>ff    :<c-u>CSFileFilter<cr>
+
+    " All files
+    nnoremap <silent> <leader>fF    :CSFileFilter!<cr>
+    vnoremap <silent> <leader>fF    :<c-u>CSFileFilter!<cr>
+
+    " Function called
+    nnoremap <silent> <leader>fc    :call cscope#preview('3', 'n', 1)<cr>
+    vnoremap <silent> <leader>fc    :<c-u>call cscope#preview('3', 'v', 1)<cr>
+
+    " Function calling
+    nnoremap <silent> <leader>fC    :call cscope#preview('2', 'n', 1)<cr>
+    vnoremap <silent> <leader>fC    :<c-u>call cscope#preview('2', 'v', 1)<cr>
+
+    " Function symbol
+    nnoremap <silent> <leader>fs    :CSTagFilter<cr>
+    vnoremap <silent> <leader>fs    :<c-u>CSTagFilter<cr>
+    " no Function symbol
+    nnoremap <silent> <leader>fS    :CSTagFilter!<cr>
+    vnoremap <silent> <leader>fS    :<c-u>CSTagFilter!<cr><cr>
+
+    " " tExt
+    " nnoremap          <leader>fe    :CscopeText! <c-r>=utils#GetSelected('')<cr>
+    " vnoremap          <leader>fe    :<c-u>CscopeText! <c-r>=utils#GetSelected('')<cr>
+    " nnoremap          <leader>fE    :CscopeGrep! <c-r>=utils#GetSelected('')<cr>
+    " vnoremap          <leader>fE    :<c-u>CscopeGrep! <c-r>=utils#GetSelected('')<cr>
+
+    Shortcut! <space>ff    find file partial
+    Shortcut! <space>fF    find all file
+    Shortcut! <space>fs    find symbol function
+    Shortcut! <space>fS    find symbol no function
+    "Shortcut! <space>fF   find file all
+    "Shortcut! <space>fe   find function
+
 endif
-
-
 
