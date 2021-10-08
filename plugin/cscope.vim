@@ -105,23 +105,27 @@ if exists("g:fzf_cscope_map") && g:fzf_cscope_map
     vnoremap <silent> <leader>ff    :<c-u>CSFileFilter<cr>
 
     " All files
-    nnoremap <silent> <leader>fF    :CSFileFilter!<cr>
-    vnoremap <silent> <leader>fF    :<c-u>CSFileFilter!<cr>
+    nnoremap <silent>        ;ff    :CSFileFilter!<cr>
+    vnoremap <silent>        ;ff    :<c-u>CSFileFilter!<cr>
 
     " Function called
-    nnoremap <silent> <leader>fc    :call cscope#preview('3', 'n', 1)<cr>
-    vnoremap <silent> <leader>fc    :<c-u>call cscope#preview('3', 'v', 1)<cr>
+    nnoremap <silent> <leader>fs    :call cscope#preview('3', 'n', 1)<cr>
+    vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('3', 'v', 1)<cr>
 
     " Function calling
-    nnoremap <silent> <leader>fC    :call cscope#preview('2', 'n', 1)<cr>
-    vnoremap <silent> <leader>fC    :<c-u>call cscope#preview('2', 'v', 1)<cr>
+    nnoremap <silent>        ;fs    :call cscope#preview('2', 'n', 1)<cr>
+    vnoremap <silent>        ;fs    :<c-u>call cscope#preview('2', 'v', 1)<cr>
 
     " Function symbol
-    nnoremap <silent> <leader>fs    :CSTagFilter<cr>
-    vnoremap <silent> <leader>fs    :<c-u>CSTagFilter<cr>
+    nnoremap <silent> <leader>fw    :CSTagFilter<cr>
+    vnoremap <silent> <leader>fw    :<c-u>CSTagFilter<cr>
     " no Function symbol
-    nnoremap <silent> <leader>fS    :CSTagFilter!<cr>
-    vnoremap <silent> <leader>fS    :<c-u>CSTagFilter!<cr><cr>
+    nnoremap <silent>        ;fw    :CSTagFilter!<cr>
+    vnoremap <silent>        ;fw    :<c-u>CSTagFilter!<cr><cr>
+
+    nnoremap <silent> <leader>fj    :FZFJump<cr>
+    nnoremap <silent> <leader>fc    :FZFChange<cr>
+    nnoremap <silent> <leader>fm    :FZFMarks<cr>
 
     " " tExt
     " nnoremap          <leader>fe    :CscopeText! <c-r>=utils#GetSelected('')<cr>
@@ -129,10 +133,12 @@ if exists("g:fzf_cscope_map") && g:fzf_cscope_map
     " nnoremap          <leader>fE    :CscopeGrep! <c-r>=utils#GetSelected('')<cr>
     " vnoremap          <leader>fE    :<c-u>CscopeGrep! <c-r>=utils#GetSelected('')<cr>
 
-    Shortcut! <space>ff    find file partial
-    Shortcut! <space>fF    find all file
-    Shortcut! <space>fs    find symbol function
-    Shortcut! <space>fS    find symbol no function
+    Shortcut! <space>ff    find file related
+    Shortcut!       ;ff    find file all
+    Shortcut! <space>fs    find function caller
+    Shortcut!       ;fs    find function callee
+    Shortcut! <space>fw    find symbol function
+    Shortcut!       ;fw    find symbol not function
     "Shortcut! <space>fF   find file all
     "Shortcut! <space>fe   find function
 
