@@ -16,7 +16,8 @@ augroup end
 command! Cscope :call cscope#ReLoadCscope()
 
 command! -bang -nargs=* CSFileFilter    call cscope#FileFilter(<q-args>, <bang>0)
-command! -bang -nargs=* CSTagFilter     call cscope#TagFilter(<q-args>, <bang>0)
+command! -bang -nargs=* CSTagFilter     call cscope#TagFilter(<q-args>, <bang>0, 'n')
+command! -bang -nargs=* CSTagFilterV    call cscope#TagFilter(<q-args>, <bang>0, 'v')
 command! -bang -nargs=* CscopeText      call cscope#preview('4', <q-args>, <bang>0)
 command! -bang -nargs=* CscopeGrep      call cscope#preview('6', <q-args>, <bang>0)
 
@@ -85,7 +86,8 @@ endif
 "set cscopetag
 "set cscopequickfix=s0,c0,d0,i0,t-,e-
 
-if exists("g:fzf_cscope_map") && g:fzf_cscope_map
+let g:fzf_cscope_map = get(g:, 'fzf_cscope_map', 0)
+if g:fzf_cscope_map
     " symbol
     " 1. Please install 'batcat' first: sudo apt install bat
     " 2. Then check the config if batcat can't works:  batcat --diagnostic
@@ -99,29 +101,39 @@ if exists("g:fzf_cscope_map") && g:fzf_cscope_map
         finish
     endif
 
-    " File
-    " FileCatV, FileCatPreN (preview)
-    nnoremap <silent> <leader>ff    :CSFileFilter<cr>
+    "
+    " Keymap:
+    "  file - ff,               files     - cscope.files
+    "                           all files - rg collect files
+    "  symbol.function - fs,    word - cscope 3(func-call),     select - cscope 1(func-def),        empty - tags all-function-uniq but filter-in 'g:fzf_cscope_tag_filter'
+    "                           word - cscope 0(symbol-all),    select - cscope 0(symbol-all),      empty - tags all-function-uniq
+    "  symbol.all(filter) - fw, word - cscope 0(symbol),        select - cscope 0(symbol),          empty - tags not-func-symbol-uniq but filter-in 'g:fzf_cscope_tag_filter'
+    "          no-filter        word - cscope 9(symbol-assign), select - cscope 9(symbol-assign),   empty - tags not-func-symbol-uniq
+    "
+    nnoremap <silent> <leader>ff    :     CSFileFilter<cr>
     vnoremap <silent> <leader>ff    :<c-u>CSFileFilter<cr>
 
-    " All files
-    nnoremap <silent>        ;ff    :CSFileFilter!<cr>
+    nnoremap <silent>        ;ff    :     CSFileFilter!<cr>
     vnoremap <silent>        ;ff    :<c-u>CSFileFilter!<cr>
 
-    " Function called
-    nnoremap <silent> <leader>fs    :call cscope#preview('3', 'n', 1)<cr>
-    vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('3', 'v', 1)<cr>
+    nnoremap <silent> <leader>fs    :     call cscope#preview('3', 'n', 1, 0)<cr>
+    vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('1', 'v', 1, 0)<cr>
 
-    " Function calling
-    nnoremap <silent>        ;fs    :call cscope#preview('2', 'n', 1)<cr>
-    vnoremap <silent>        ;fs    :<c-u>call cscope#preview('2', 'v', 1)<cr>
+    nnoremap <silent>        ;fs    :     call cscope#preview('0', 'n', 1, 1)<cr>
+    vnoremap <silent>        ;fs    :<c-u>call cscope#preview('0', 'v', 1, 1)<cr>
 
-    " Function symbol
-    nnoremap <silent> <leader>fw    :CSTagFilter<cr>
-    vnoremap <silent> <leader>fw    :<c-u>CSTagFilter<cr>
-    " no Function symbol
-    nnoremap <silent>        ;fw    :CSTagFilter!<cr>
-    vnoremap <silent>        ;fw    :<c-u>CSTagFilter!<cr><cr>
+    nnoremap <silent> <leader>fw    :     call cscope#preview('0', 'n', 0, 0)<cr>
+    vnoremap <silent> <leader>fw    :<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
+
+    nnoremap <silent>        ;fw    :     call cscope#preview('9', 'n', 0, 1)<cr>
+    vnoremap <silent>        ;fw    :<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
+
+    " " Function symbol
+    " nnoremap <silent> <leader>fw    :CSTagFilter<cr>
+    " vnoremap <silent> <leader>fw    :<c-u>CSTagFilterV<cr>
+    " " no Function symbol
+    " nnoremap <silent>        ;fw    :CSTagFilter!<cr>
+    " vnoremap <silent>        ;fw    :<c-u>CSTagFilterV!<cr>
 
     nnoremap <silent> <leader>fj    :FZFJump<cr>
     nnoremap <silent> <leader>fc    :FZFChange<cr>

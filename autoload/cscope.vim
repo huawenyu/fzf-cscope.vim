@@ -59,6 +59,7 @@ if !exists("s:init")
         '
 END
 
+    " ($2 == "function" && $1 ~ env_ftxt)
     let s:color_tag_func =<< END
         | awk -v env_ftxt="$ftxt" '
         function color1(txt) { return "\033[34m" txt "\033[0m"; }
@@ -66,19 +67,24 @@ END
         function color3(txt) { return "\033[32m" txt "\033[0m"; }
         function color4(txt) { return "\033[37m" txt "\033[0m"; }
         function color5(txt) { return "\033[33m" txt "\033[0m"; }
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
 
         BEGIN {}
-        ($2 == "function" && $1 ~ env_ftxt) {
+        ($2 == "function" && $4 ~ env_ftxt) {
 
             $1 = $2 = "";
             lnum = $3; $3 = "";
+            fname = basename($4);
             file = $4; $4 = "";
 
             tmp = match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);
             if (tmp)
-                print file ":" color1(lnum) ":0:" color2(arr[1]) "(" arr[3] ")";
+                print file ":" lnum ":0:" color1(fname) ": " color2(arr[1]) "(" arr[3] ")";
             else
-                print file ":" color1(lnum) ":0:" color2($0);
+                print file ":" lnum ":0:" color1(fname) ": " color2($0);
         }
         END {}
         '
@@ -91,19 +97,24 @@ END
         function color3(txt) { return "\033[32m" txt "\033[0m"; }
         function color4(txt) { return "\033[37m" txt "\033[0m"; }
         function color5(txt) { return "\033[33m" txt "\033[0m"; }
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
 
         BEGIN {}
-        ($2 != "function" && $1 ~ env_ftxt) {
+        ($2 != "function" && $4 ~ env_ftxt) {
 
             $1 = $2 = "";
             lnum = $3; $3 = "";
+            fname = basename($4);
             file = $4; $4 = "";
 
             tmp = match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);
             if (tmp)
-                print file ":" color1(lnum) ":0:" color2(arr[1]) "(" arr[3] ")";
+                print file ":" lnum ":0:" color1(fname) ": " color2(arr[1]) "(" arr[3] ")";
             else
-                print file ":" color1(lnum) ":0:" color2($0);
+                print file ":" lnum ":0:" color1(fname) ": " color2($0);
         }
         END {}
         '
@@ -169,36 +180,42 @@ function! cscope#ReLoadCscope()
 endfunction
 
 
-function! cscope#run(option, query)
+function! cscope#run(option, query, bang)
     call fzf#vim#grep(
                 \   'cscope -dL'..a:option..' '..a:query..join(s:color_cscope),
                 \   1,
-                \   fzfpreview#p(<bang>0),
-                \   <bang>0)
+                \   fzfpreview#p(a:bang),
+                \   a:bang)
 endfunction
 
 
-function! cscope#preview(option, query, preview)
-    if a:query ==# 'n'
-        silent! call s:log.info(__func__, " from nmap ", a:query)
-        let query = utils#GetSelected('n')
-    elseif a:query ==# 'v'
-        silent! call s:log.info(__func__, " from vmap ", a:query)
-        let query = utils#GetSelected('v')
+function! cscope#preview(option, mode, tagfunc, tagbang)
+    let query = hw#misc#GetWord(a:mode)
+    if len(query) > 0
+        if a:mode ==# 'n'
+            let char1st = strcharpart(query, 0, 1)
+            if char1st !=# '"' && char1st !=# "'"
+                let query = "'". query. "'"
+            endif
+        else
+            call inputsave()
+            let char1st = strcharpart(query, 0, 1)
+            if char1st !=# '"' && char1st !=# "'"
+                let query = "'". query. ".*'"
+            endif
+			let query = input({'prompt':'Cscope: ', 'default': query, 'cancelreturn': ''})
+            call inputrestore()
+
+            if len(query) == 0 | return | endif
+        endif
+
+        call fzf#vim#grep('cscope -dL'..a:option..' '..query..join(s:color_cscope),
+                    \   1,
+                    \   fzfpreview#p(1),
+                    \   1)
     else
-        silent! call s:log.info(__func__, " from N/A ", a:query)
-        let query = a:query
+        call cscope#TagFilter(a:tagfunc, a:mode, a:tagbang)
     endif
-
-    let char1st = strcharpart(query, 0, 1)
-    if char1st !=# '"' && char1st !=# "'"
-        let query = "'". query. "'"
-    endif
-
-    call fzf#vim#grep('cscope -dL'..a:option..' '..query..join(s:color_cscope),
-                \   1,
-                \   fzfpreview#p(a:preview),
-                \   a:preview)
 endfunction
 
 
@@ -233,7 +250,7 @@ function! cscope#Query(option)
     endif
     call inputrestore()
     if query != ""
-        call cscope#run(a:option, query)
+        call cscope#run(a:option, query, 1)
     else
         echom "Cancelled Search!"
     endif
@@ -265,7 +282,7 @@ function! cscope#FileFilter(args, bang)
 endfunction
 
 
-function! cscope#TagFilter(args, bang)
+function! cscope#TagFilter(isfunc, mode, bang)
     let __func__ = "cscope#TagFilter() "
 
     let tagfile = ''
@@ -285,19 +302,19 @@ function! cscope#TagFilter(args, bang)
     endif
 
     " <bang>0 function, <bang>1 symbol
-    if empty(a:args) && !empty(g:fzf_cscope_tag_filter)
+    " let $ftxt = hw#misc#GetWord(a:mode)
+    let $ftxt = '/'
+    if !a:bang && !empty(g:fzf_cscope_tag_filter)
         let $ftxt = g:fzf_cscope_tag_filter
-    else
-        let $ftxt = a:args
     endif
 
-    if a:bang
-        let cmdStr = 'cat '..tagfile..join(s:color_tag_no_func)
-    else
+    if a:isfunc
         let cmdStr = 'cat '..tagfile..join(s:color_tag_func)
+    else
+        let cmdStr = 'cat '..tagfile..join(s:color_tag_no_func)
     endif
 
-    "silent! call s:log.info(__func__, cmdStr)
+    silent! call s:log.info(__func__, cmdStr)
     if !empty(cmdStr)
         call fzf#vim#grep(cmdStr,
                 \   1,
