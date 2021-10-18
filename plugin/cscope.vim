@@ -2,6 +2,12 @@ if exists('g:loaded_hw_fzfcscope') || &compatible
     finish
 endif
 let g:loaded_hw_fzfcscope = 1
+if g:loaded_hw_fzfcscope == 1
+    let g:loaded_hw_fzfcscope = 2
+    if !exists(":Shortcut")
+        command! -nargs=+ Shortcut <Nop>
+    endif
+endif
 
 
 augroup fzf_cscope
