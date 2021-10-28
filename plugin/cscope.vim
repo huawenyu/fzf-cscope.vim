@@ -46,7 +46,7 @@ if has('cscope')
     "    \ find -L . -iname '*.c' -o -iname '*.cpp' -o -iname '*.h' -o -iname '*.hpp' > cscope.files &&
     "    \ sort cscope.files > cscope.files.sorted && mv cscope.files.sorted cscope.files &&
     "    \ cscope -kbq -i cscope.files -f cscope.out &&
-    "    \ ctags -R --fields=+aimSl --c-kinds=+lpx --c++-kinds=+lpx --exclude='.svn' 
+    "    \ ctags -R --fields=+aimSl --c-kinds=+lpx --c++-kinds=+lpx --exclude='.svn'
     "    \ --exclude='.git' --exclude='*.a' --exclude='*.js' --exclude='*.pxd' --exclude='*.pyx' --exclude='*.so' &&
     "    \ echo "Done." <cr><cr>
 
@@ -107,14 +107,22 @@ if g:fzf_cscope_map
         finish
     endif
 
+    " Keymap: <space>key, (+)advance ;key
     "
-    " Keymap:
-    "  file - ff,               files     - cscope.files
-    "                           all files - rg collect files
-    "  symbol.function - fs,    word - cscope 3(func-call),     select - cscope 1(func-def),        empty - tags all-function-uniq but filter-in 'g:fzf_cscope_tag_filter'
-    "                           word - cscope 0(symbol-all),    select - cscope 0(symbol-all),      empty - tags all-function-uniq
-    "  symbol.all(filter) - fw, word - cscope 0(symbol),        select - cscope 0(symbol),          empty - tags not-func-symbol-uniq but filter-in 'g:fzf_cscope_tag_filter'
-    "          no-filter        word - cscope 9(symbol-assign), select - cscope 9(symbol-assign),   empty - tags not-func-symbol-uniq
+    "  file     - ff            files         files from cscope.files
+    "              +            files (all)   files from rg instance collect
+    "  function - fs            mode-word     cscope 3(func-call),
+    "                           mode-select   cscope 1(func-def),
+    "                           mode-empty    tags all-function-uniq and filter-in 'g:fzf_cscope_tag_filter'
+    "              +            mode-word     cscope 0(symbol-all),
+    "                           mode-select   cscope 0(symbol-all),
+    "                           mode-empty    tags all-function-uniq
+    "  symbol   - fw            mode-word     cscope 0(symbol) and filter-in 'g:fzf_cscope_tag_filter'
+    "                           mode-select   cscope 0(symbol) and filter-in 'g:fzf_cscope_tag_filter'
+    "                           mode-empty    tags not-func-symbol-uniq but filter-in 'g:fzf_cscope_tag_filter'
+    "              +            mode-word     cscope 9(be assigned value),
+    "                           mode-select   cscope 9(be assigned value),
+    "                           mode-empty    tags not-func-symbol-uniq
     "
     nnoremap <silent> <leader>ff    :     CSFileFilter<cr>
     vnoremap <silent> <leader>ff    :<c-u>CSFileFilter<cr>
@@ -128,11 +136,11 @@ if g:fzf_cscope_map
     nnoremap <silent>        ;fs    :     call cscope#preview('0', 'n', 1, 1)<cr>
     vnoremap <silent>        ;fs    :<c-u>call cscope#preview('0', 'v', 1, 1)<cr>
 
-    nnoremap <silent> <leader>fw    :     call cscope#preview('0', 'n', 0, 0)<cr>
-    vnoremap <silent> <leader>fw    :<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
+    nnoremap <silent> <leader>fw    :     call cscope#preview('0', 'n', 0, 1)<cr>
+    vnoremap <silent> <leader>fw    :<c-u>call cscope#preview('0', 'v', 0, 1)<cr>
 
-    nnoremap <silent>        ;fw    :     call cscope#preview('9', 'n', 0, 1)<cr>
-    vnoremap <silent>        ;fw    :<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
+    nnoremap <silent>        ;fw    :     call cscope#preview('9', 'n', 0, 0)<cr>
+    vnoremap <silent>        ;fw    :<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
 
     " " Function symbol
     " nnoremap <silent> <leader>fw    :CSTagFilter<cr>

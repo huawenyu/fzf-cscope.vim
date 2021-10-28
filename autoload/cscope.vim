@@ -25,7 +25,7 @@ if !exists("s:init")
     " Check it: https://ideone.com/
     "\011  tab
     let s:color_cscope =<< END
-        | awk '
+        | awk -v env_ftxt="$ftxt" '
         function color1(txt) { return "\033[34m" txt "\033[0m"; }
         function color2(txt) { return "\033[35m" txt "\033[0m"; }
         function color3(txt) { return "\033[32m" txt "\033[0m"; }
@@ -33,7 +33,7 @@ if !exists("s:init")
         function color5(txt) { return "\033[33m" txt "\033[0m"; }
 
         BEGIN {}
-        {
+        ($1 ~ env_ftxt) {
 
             file   = $1; $1 = "";
             lnum   = $3; $3 = "";
@@ -189,7 +189,7 @@ function! cscope#run(option, query, bang)
 endfunction
 
 
-function! cscope#preview(option, mode, tagfunc, tagbang)
+function! cscope#preview(option, mode, isfunc, filter)
     let query = hw#misc#GetWord(a:mode)
     if len(query) > 0
         if a:mode ==# 'n'
@@ -209,12 +209,19 @@ function! cscope#preview(option, mode, tagfunc, tagbang)
             if len(query) == 0 | return | endif
         endif
 
+        " Suppose the path it's unix/linux path style
+        " let $ftxt = hw#misc#GetWord(a:mode)
+        let $ftxt = '/'
+        if a:filter && !empty(g:fzf_cscope_tag_filter)
+           let $ftxt = g:fzf_cscope_tag_filter
+        endif
+
         call fzf#vim#grep('cscope -dL'..a:option..' '..query..join(s:color_cscope),
                     \   1,
                     \   fzfpreview#p(1),
                     \   1)
     else
-        call cscope#TagFilter(a:tagfunc, a:mode, a:tagbang)
+        call cscope#TagFilter(a:isfunc, a:mode, a:filter)
     endif
 endfunction
 
@@ -282,7 +289,7 @@ function! cscope#FileFilter(args, bang)
 endfunction
 
 
-function! cscope#TagFilter(isfunc, mode, bang)
+function! cscope#TagFilter(isfunc, mode, filter)
     let __func__ = "cscope#TagFilter() "
 
     let tagfile = ''
@@ -301,10 +308,9 @@ function! cscope#TagFilter(isfunc, mode, bang)
         return
     endif
 
-    " <bang>0 function, <bang>1 symbol
     " let $ftxt = hw#misc#GetWord(a:mode)
     let $ftxt = '/'
-    if !a:bang && !empty(g:fzf_cscope_tag_filter)
+    if a:filter && !empty(g:fzf_cscope_tag_filter)
         let $ftxt = g:fzf_cscope_tag_filter
     endif
 
