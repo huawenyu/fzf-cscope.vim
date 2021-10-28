@@ -123,6 +123,7 @@ if g:fzf_cscope_map
     "              +            mode-word     cscope 9(be assigned value),
     "                           mode-select   cscope 9(be assigned value),
     "                           mode-empty    tags not-func-symbol-uniq
+    "  symbol   - fe            same-as fw, but without filter
     "
     nnoremap <silent> <leader>ff    :     CSFileFilter<cr>
     vnoremap <silent> <leader>ff    :<c-u>CSFileFilter<cr>
@@ -139,8 +140,14 @@ if g:fzf_cscope_map
     nnoremap <silent> <leader>fw    :     call cscope#preview('0', 'n', 0, 1)<cr>
     vnoremap <silent> <leader>fw    :<c-u>call cscope#preview('0', 'v', 0, 1)<cr>
 
-    nnoremap <silent>        ;fw    :     call cscope#preview('9', 'n', 0, 0)<cr>
-    vnoremap <silent>        ;fw    :<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
+    nnoremap <silent>        ;fw    :     call cscope#preview('9', 'n', 0, 1)<cr>
+    vnoremap <silent>        ;fw    :<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
+
+    nnoremap <silent> <leader>fe    :     call cscope#preview('0', 'n', 0, 0)<cr>
+    vnoremap <silent> <leader>fe    :<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
+
+    nnoremap <silent>        ;fe    :     call cscope#preview('9', 'n', 0, 0)<cr>
+    vnoremap <silent>        ;fe    :<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
 
     " " Function symbol
     " nnoremap <silent> <leader>fw    :CSTagFilter<cr>
@@ -159,14 +166,15 @@ if g:fzf_cscope_map
     " nnoremap          <leader>fE    :CscopeGrep! <c-r>=utils#GetSelected('')<cr>
     " vnoremap          <leader>fE    :<c-u>CscopeGrep! <c-r>=utils#GetSelected('')<cr>
 
-    Shortcut! <space>ff    find file related
-    Shortcut!       ;ff    find file all
-    Shortcut! <space>fs    find function caller
-    Shortcut!       ;fs    find function callee
-    Shortcut! <space>fw    find symbol function
-    Shortcut!       ;fw    find symbol not function
-    "Shortcut! <space>fF   find file all
-    "Shortcut! <space>fe   find function
+    Shortcut! <space>ff    find file (filter) related
+    Shortcut!       ;ff    find file (all)
+    Shortcut! <space>fs    find function (filter)
+    Shortcut!       ;fs    find function (all)
+
+    Shortcut! <space>fw    find symbol (filter)
+    Shortcut!       ;fw    find symbol (filter) with assign value
+    Shortcut! <space>fe    find symbol (all)
+    Shortcut!       ;fe    find symbol (all) with assign value
 
 endif
 
