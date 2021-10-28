@@ -113,13 +113,13 @@ if g:fzf_cscope_map
     "              +            files (all)   files from rg instance collect
     "  function - fs            mode-word     cscope 3(func-call),
     "                           mode-select   cscope 1(func-def),
-    "                           mode-empty    tags all-function-uniq and filter-in 'g:fzf_cscope_tag_filter'
+    "                           mode-empty    tags all-function-uniq and filter-in 'g:fzfCscopeFilter'
     "              +            mode-word     cscope 0(symbol-all),
     "                           mode-select   cscope 0(symbol-all),
     "                           mode-empty    tags all-function-uniq
-    "  symbol   - fw            mode-word     cscope 0(symbol) and filter-in 'g:fzf_cscope_tag_filter'
-    "                           mode-select   cscope 0(symbol) and filter-in 'g:fzf_cscope_tag_filter'
-    "                           mode-empty    tags not-func-symbol-uniq but filter-in 'g:fzf_cscope_tag_filter'
+    "  symbol   - fw            mode-word     cscope 0(symbol) and filter-in 'g:fzfCscopeFilter'
+    "                           mode-select   cscope 0(symbol) and filter-in 'g:fzfCscopeFilter'
+    "                           mode-empty    tags not-func-symbol-uniq but filter-in 'g:fzfCscopeFilter'
     "              +            mode-word     cscope 9(be assigned value),
     "                           mode-select   cscope 9(be assigned value),
     "                           mode-empty    tags not-func-symbol-uniq

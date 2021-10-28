@@ -212,8 +212,8 @@ function! cscope#preview(option, mode, isfunc, filter)
         " Suppose the path it's unix/linux path style
         " let $ftxt = hw#misc#GetWord(a:mode)
         let $ftxt = '/'
-        if a:filter && !empty(g:fzf_cscope_tag_filter)
-           let $ftxt = g:fzf_cscope_tag_filter
+        if a:filter && !empty(g:fzfCscopeFilter)
+           let $ftxt = g:fzfCscopeFilter
         endif
 
         call fzf#vim#grep('cscope -dL'..a:option..' '..query..join(s:color_cscope),
@@ -310,8 +310,8 @@ function! cscope#TagFilter(isfunc, mode, filter)
 
     " let $ftxt = hw#misc#GetWord(a:mode)
     let $ftxt = '/'
-    if a:filter && !empty(g:fzf_cscope_tag_filter)
-        let $ftxt = g:fzf_cscope_tag_filter
+    if a:filter && !empty(g:fzfCscopeFilter)
+        let $ftxt = g:fzfCscopeFilter
     endif
 
     if a:isfunc
