@@ -108,6 +108,7 @@ if g:fzf_cscope_map
     endif
 
     " Keymap: <space>key, (+)advance ;key
+    "         If using nvim-lspconfig neovim build-lsp plug, we can using them as our (+)advance mode
     "
     "  file     - ff            files         files from cscope.files
     "              +            files (all)   files from rg instance collect
@@ -134,19 +135,25 @@ if g:fzf_cscope_map
     nnoremap <silent> <leader>fs    :     call cscope#preview('3', 'n', 1, 0)<cr>
     vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('1', 'v', 1, 0)<cr>
 
+  if HasnoPlug('nvim-lspconfig')
     nnoremap <silent>        ;fs    :     call cscope#preview('0', 'n', 1, 1)<cr>
+  endif
     vnoremap <silent>        ;fs    :<c-u>call cscope#preview('0', 'v', 1, 1)<cr>
 
     nnoremap <silent> <leader>fw    :     call cscope#preview('0', 'n', 0, 1)<cr>
     vnoremap <silent> <leader>fw    :<c-u>call cscope#preview('0', 'v', 0, 1)<cr>
 
+  "if HasnoPlug('nvim-lspconfig')
     nnoremap <silent>        ;fw    :     call cscope#preview('9', 'n', 0, 1)<cr>
+  "endif
     vnoremap <silent>        ;fw    :<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
 
     nnoremap <silent> <leader>fe    :     call cscope#preview('0', 'n', 0, 0)<cr>
     vnoremap <silent> <leader>fe    :<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
 
+  "if HasnoPlug('nvim-lspconfig')
     nnoremap <silent>        ;fe    :     call cscope#preview('9', 'n', 0, 0)<cr>
+  "endif
     vnoremap <silent>        ;fe    :<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
 
     " " Function symbol

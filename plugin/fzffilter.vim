@@ -91,15 +91,52 @@ fun! s:getJumps(listname)
     endif
 endf
 
-
-" function! GoToJump(jump)
-"     let jumpnumber = split(a:jump, '\s\+')[0]
-"     execute "normal " . jumpnumber . "\<c-o>"
+" function! s:to_relpath(filename)
+"     let cwd = getcwd()
+"     let s = substitute(a:filename, l:cwd . "/" , "", "")
+"     return s
 " endfunction
 
-" command! Jump let $ftxt = expand('%') <bar> call fzf#run(fzf#vim#with_preview(fzf#wrap({
-"             \ 'source': GetJumps(),
-"             \ 'sink': function('GoToJump')})))
+" function! s:format_qf_line(line)
+"     let parts = split(a:line, ':')
+"     return { 'filename': parts[0]
+"                 \,'lnum': parts[1]
+"                 \,'col': parts[2]
+"                 \,'text': join(parts[3:], ':')
+"                 \ }
+" endfunction
+
+" function! s:qf_to_fzf(key, line) abort
+"     let l:filepath = s:to_relpath(expand('#' . a:line.bufnr . ':p'))
+"     return l:filepath . ':' . a:line.lnum . ':' . a:line.col . ':' . a:line.text
+" endfunction
+
+" function! s:fzf_to_qf(filtered_list) abort
+"     let list = map(a:filtered_list, 's:format_qf_line(v:val)')
+"     if len(list) > 0
+"         call setqflist(list)
+"         copen
+"     endif
+" endfunction
+
+" fun! s:getQuickfix()
+"     let qf = getqflist()
+"     call map(qf, function('<sid>qf_to_fzf'))
+"     echomsg qf
+"     if writefile(qf, g:vim_confi_option.tmp_file)
+"         echomsg 'write error'
+"     endif
+" endf
+
+" command! -bang -nargs=* FZFQF
+"             \   let $ftxt = expand('%') <bar> let $fhome = $HOME <bar>
+"             \   call s:getQuickfix() <bar>
+"             \   call fzf#vim#grep(
+"             \       'cat '..g:vim_confi_option.tmp_file,
+"             \       1,
+"             \       fzfpreview#p(<bang>0, ),
+"             \       <bang>0)
+
 
 command! -bang -nargs=* FZFJump
             \   let $ftxt = expand('%') <bar> let $fhome = $HOME <bar>
@@ -150,3 +187,23 @@ if HasPlug('vim.config')
 endif
 
 
+command! FzfQF call fzf#run({
+            \ 'source': map(getqflist(), function('<sid>qf_to_fzf')),
+            \ 'down':   '20',
+            \ 'sink*':   function('<sid>fzf_to_qf'),
+            \ 'options': '--reverse --multi --bind=ctrl-a:select-all,ctrl-d:deselect-all --prompt "quickfix> "',
+            \ })
+
+" command! -bang FzfQF2 call fzf#run(fzf#vim#with_preview(fzf#wrap({
+"             \ 'source': map(getqflist(), function('<sid>qf_to_fzf')),
+"             \ 'down':   '30',
+"             \ 'sink*':   function('<sid>fzf_to_qf'),
+"             \ 'options': '--reverse --multi --bind=ctrl-s:select-all,ctrl-d:deselect-all --prompt "filter> "',
+"             \ })))
+
+" command! -bang FzfQF2 call fzf#run(fzf#vim#with_preview(fzf#wrap({
+"             \ 'source': map(getqflist(), function('<sid>qf_to_fzf')),
+"             \ 'down':   '30',
+"             \ 'sink*':   function('<sid>fzf_to_qf'),
+"             \ 'options': '--reverse --multi --bind=ctrl-s:select-all,ctrl-d:deselect-all --prompt "filter> "',
+"             \ })))
