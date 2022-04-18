@@ -35,7 +35,7 @@ END
                 \       ..' '..shellescape(<q-args>)
                 \       ..join(g:vim_confi_option.trans_grepshorter),
                 \   1,
-                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
+                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4.. -q '.shellescape(expand('<cword>')) }),
                 \   <bang>0)
 
 endif
