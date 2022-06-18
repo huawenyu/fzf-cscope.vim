@@ -30,12 +30,12 @@ END
 
     command! -bang -nargs=* Cheat
                 \ call fzf#vim#grep(
-                \   'grep --color=no -rn -m2 "" -- '
+                \   'grep --color=no -rn --exclude-dir={'..shellescape("'.tag?',")..shellescape("'.cache',")..shellescape("'.ccls_cache'")..'} -m2 "" -- '
                 \       ..join(g:vim_confi_option.fzf_files)
                 \       ..' '..shellescape(<q-args>)
                 \       ..join(g:vim_confi_option.trans_grepshorter),
                 \   1,
-                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4.. -q '.shellescape(hw#misc#GetCursorWord()) }),
+                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4.. -q '..shellescape(hw#misc#GetCursorWord()) }),
                 \   <bang>0)
 
 endif
@@ -163,27 +163,26 @@ command! -bang -nargs=* FZFChange
 if HasPlug('vim.config')
     command! -bang -nargs=* WikiRgBug call fzf#vim#grep('rg
                 \ --column --line-number --no-heading --no-column --color=never --sort-files
-                \ --smart-case --type md <q-args> "$MYPATH_WIKI"',
+                \ --smart-case --type md "<q-args>" "$MYPATH_WIKI"',
                 \ 1, fzf#vim#with_preview(), <bang>0)
 
     command! -bang -nargs=* WikiRgDot call fzf#vim#grep('rg
                 \ --column --line-number --no-heading --no-column --color=never --sort-files
-                \ --smart-case --type md <q-args> "$HOME/dotwiki"',
+                \ --smart-case --type md "<q-args>" "$HOME/dotwiki"',
                 \ 1, fzf#vim#with_preview(), <bang>0)
 
     command! -bang -nargs=* WikiRgLinux call fzf#vim#grep('rg
                 \ --column --line-number --no-heading --no-column --color=never --sort-files
-                \ --smart-case --type md <q-args> "$HOME/wiki"',
+                \ --smart-case --type md "<q-args>" "$HOME/wiki"',
                 \ 1, fzf#vim#with_preview(), <bang>0)
 
     "autocmd FileType vimwiki nnoremap <buffer> <leader>wf :WikiRg<Space>
-    Shortcut! Wiki(bug) search full text
-			\ nnoremap <Space>,,d      :WikiRgBug<Space>
-    Shortcut! Wiki(dot) search full text
-			\ nnoremap <Space>,,e      :WikiRgDot<Space>
-    Shortcut! Wiki(linux) search full text
-			\ nnoremap <Space>,,f      :WikiRgLinux<Space>
-
+    Shortcut Wiki(bug) search full text
+			\ nnoremap ;wb      :WikiRgBug<Space>
+    Shortcut Wiki(dot) search full text
+			\ nnoremap ;ww      :WikiRgDot<Space>
+    Shortcut Wiki(linux) search full text
+			\ nnoremap ;wt      :WikiRgLinux<Space>
 endif
 
 
