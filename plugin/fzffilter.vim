@@ -177,11 +177,11 @@ if HasPlug('vim.config')
                 \ 1, fzf#vim#with_preview(), <bang>0)
 
     "autocmd FileType vimwiki nnoremap <buffer> <leader>wf :WikiRg<Space>
-    Shortcut Wiki(bug) search full text
+    silent! Shortcut Wiki(bug) search full text
 			\ nnoremap ;wb      :WikiRgBug<Space>
-    Shortcut Wiki(dot) search full text
+    silent! Shortcut Wiki(dot) search full text
 			\ nnoremap ;ww      :WikiRgDot<Space>
-    Shortcut Wiki(linux) search full text
+    silent! Shortcut Wiki(linux) search full text
 			\ nnoremap ;wt      :WikiRgLinux<Space>
 endif
 

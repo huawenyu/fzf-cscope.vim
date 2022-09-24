@@ -126,11 +126,11 @@ if g:fzf_cscope_map
     "                           mode-empty    tags not-func-symbol-uniq
     "  symbol   - fe            same-as fw, but without filter
     "
-    nnoremap <silent> <leader>ff    :     CSFileFilter<cr>
-    vnoremap <silent> <leader>ff    :<c-u>CSFileFilter<cr>
+    nnoremap <silent> <leader>ff    :"open Files"<c-u>CSFileFilter<cr>
+    vnoremap <silent> <leader>ff    :"open Files"<c-u>CSFileFilter<cr>
 
-    nnoremap <silent>        ;ff    :     CSFileFilter!<cr>
-    vnoremap <silent>        ;ff    :<c-u>CSFileFilter!<cr>
+    nnoremap <silent>        ;ff    :"open Files"<c-u>CSFileFilter!<cr>
+    vnoremap <silent>        ;ff    :"open Files"<c-u>CSFileFilter!<cr>
 
     " 'nvim-lspconfig' clangd assign with the prefix ;
   "if HasNoPlug('nvim-lspconfig')
@@ -144,23 +144,23 @@ if g:fzf_cscope_map
 
     " Uppercase with filter define by g:fzfCscopeFilter
     " Symbol:
-    nnoremap <silent> <leader>fs    :     call cscope#preview('0', 'n', 0, 0)<cr>
-    vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
-    nnoremap <silent> <leader>fS    :     call cscope#preview('0', 'n', 0, 1)<cr>
-    vnoremap <silent> <leader>fS    :<c-u>call cscope#preview('0', 'v', 0, 1)<cr>
+    nnoremap <silent> <leader>fs    :"find Symbol"<c-u>call cscope#preview('0', 'n', 0, 0)<cr>
+    vnoremap <silent> <leader>fs    :"find Symbol"<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
+    nnoremap <silent> <leader>fS    :"find Symbol(+)"<c-u>call cscope#preview('0', 'n', 0, 1)<cr>
+    vnoremap <silent> <leader>fS    :"find Symbol(+)"<c-u>call cscope#preview('0', 'v', 0, 1)<cr>
 
    " Function
-    nnoremap <silent> <leader>fc    :     call cscope#preview('3', 'n', 1, 0)<cr>
-    vnoremap <silent> <leader>fc    :<c-u>call cscope#preview('3', 'v', 1, 0)<cr>
-    nnoremap <silent> <leader>fC    :     call cscope#preview('2', 'n', 1, 0)<cr>
-    vnoremap <silent> <leader>fC    :<c-u>call cscope#preview('2', 'v', 1, 0)<cr>
+    nnoremap <silent> <leader>fc    :"function Caller"<c-u>call cscope#preview('3', 'n', 1, 0)<cr>
+    vnoremap <silent> <leader>fc    :"function caller"<c-u>call cscope#preview('3', 'v', 1, 0)<cr>
+    nnoremap <silent> <leader>fC    :"function callee"<c-u>call cscope#preview('2', 'n', 1, 0)<cr>
+    vnoremap <silent> <leader>fC    :"function callee"<c-u>call cscope#preview('2', 'v', 1, 0)<cr>
 
 
     " Write
-    nnoremap <silent> <leader>fw    :     call cscope#preview('9', 'n', 0, 0)<cr>
-    vnoremap <silent> <leader>fw    :<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
-    nnoremap <silent> <leader>fW    :     call cscope#preview('9', 'n', 0, 1)<cr>
-    vnoremap <silent> <leader>fW    :<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
+    nnoremap <silent> <leader>fw    :"who Write/assign me"<c-u>call cscope#preview('9', 'n', 0, 0)<cr>
+    vnoremap <silent> <leader>fw    :"who Write/assign me"<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
+    nnoremap <silent> <leader>fW    :"who Write/assign me(+)"<c-u>call cscope#preview('9', 'n', 0, 1)<cr>
+    vnoremap <silent> <leader>fW    :"who Write/assign me(+)"<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
 
 
 
@@ -171,9 +171,9 @@ if g:fzf_cscope_map
     " nnoremap <silent>        ;fw    :CSTagFilter!<cr>
     " vnoremap <silent>        ;fw    :<c-u>CSTagFilterV!<cr>
 
-    nnoremap <silent> <leader>fj    :FZFJump<cr>
-    nnoremap <silent> <leader>fe    :FZFChange<cr>
-    nnoremap <silent> <leader>fm    :FZFMarks<cr>
+    nnoremap <silent> <leader>fj    :"list Jumps"<c-u>FZFJump<cr>
+    nnoremap <silent> <leader>fe    :"list Edit/changes"<c-u>FZFChange<cr>
+    nnoremap <silent> <leader>fm    :"list Marks"<c-u>FZFMarks<cr>
 
     " " tExt
     " nnoremap          <leader>fe    :CscopeText! <c-r>=utils#GetSelected('')<cr>
@@ -181,15 +181,15 @@ if g:fzf_cscope_map
     " nnoremap          <leader>fE    :CscopeGrep! <c-r>=utils#GetSelected('')<cr>
     " vnoremap          <leader>fE    :<c-u>CscopeGrep! <c-r>=utils#GetSelected('')<cr>
 
-    Shortcut! <space>ff    find file (filter) related
-    Shortcut!       ;ff    find file (all)
-    Shortcut! <space>fs    find function (filter)
-    Shortcut!       ;fs    find function (all)
+    silent! Shortcut! <space>ff    find file (filter) related
+    silent! Shortcut!       ;ff    find file (all)
+    silent! Shortcut! <space>fs    find function (filter)
+    silent! Shortcut!       ;fs    find function (all)
 
-    Shortcut! <space>fw    find symbol (filter)
-    Shortcut!       ;fw    find symbol (filter) with assign value
-    Shortcut! <space>fe    find symbol (all)
-    Shortcut!       ;fe    find symbol (all) with assign value
+    silent! Shortcut! <space>fw    find symbol (filter)
+    silent! Shortcut!       ;fw    find symbol (filter) with assign value
+    silent! Shortcut! <space>fe    find symbol (all)
+    silent! Shortcut!       ;fe    find symbol (all) with assign value
 
 endif
 
