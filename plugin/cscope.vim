@@ -132,29 +132,37 @@ if g:fzf_cscope_map
     nnoremap <silent>        ;ff    :     CSFileFilter!<cr>
     vnoremap <silent>        ;ff    :<c-u>CSFileFilter!<cr>
 
-    nnoremap <silent> <leader>fs    :     call cscope#preview('3', 'n', 1, 0)<cr>
-    vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('1', 'v', 1, 0)<cr>
-
-  if HasNoPlug('nvim-lspconfig')
-    nnoremap <silent>        ;fs    :     call cscope#preview('0', 'n', 1, 1)<cr>
-  endif
-    vnoremap <silent>        ;fs    :<c-u>call cscope#preview('0', 'v', 1, 1)<cr>
-
-    nnoremap <silent> <leader>fw    :     call cscope#preview('0', 'n', 0, 1)<cr>
-    vnoremap <silent> <leader>fw    :<c-u>call cscope#preview('0', 'v', 0, 1)<cr>
-
+    " 'nvim-lspconfig' clangd assign with the prefix ;
   "if HasNoPlug('nvim-lspconfig')
-    nnoremap <silent>        ;fw    :     call cscope#preview('9', 'n', 0, 1)<cr>
+  "  nnoremap <silent>        ;fs    :     call cscope#preview('0', 'n', 1, 1)<cr>
+  "  vnoremap <silent>        ;fs    :<c-u>call cscope#preview('0', 'v', 1, 1)<cr>
+    "nnoremap <silent>        ;fw    :     call cscope#preview('9', 'n', 0, 1)<cr>
+    "vnoremap <silent>        ;fw    :<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
+    "nnoremap <silent>        ;fe    :     call cscope#preview('9', 'n', 0, 0)<cr>
+    "vnoremap <silent>        ;fe    :<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
   "endif
-    vnoremap <silent>        ;fw    :<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
 
-    nnoremap <silent> <leader>fe    :     call cscope#preview('0', 'n', 0, 0)<cr>
-    vnoremap <silent> <leader>fe    :<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
+    " Uppercase with filter define by g:fzfCscopeFilter
+    " Symbol:
+    nnoremap <silent> <leader>fs    :     call cscope#preview('0', 'n', 0, 0)<cr>
+    vnoremap <silent> <leader>fs    :<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
+    nnoremap <silent> <leader>fS    :     call cscope#preview('0', 'n', 0, 1)<cr>
+    vnoremap <silent> <leader>fS    :<c-u>call cscope#preview('0', 'v', 0, 1)<cr>
 
-  "if HasNoPlug('nvim-lspconfig')
-    nnoremap <silent>        ;fe    :     call cscope#preview('9', 'n', 0, 0)<cr>
-  "endif
-    vnoremap <silent>        ;fe    :<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
+   " Function
+    nnoremap <silent> <leader>fc    :     call cscope#preview('3', 'n', 1, 0)<cr>
+    vnoremap <silent> <leader>fc    :<c-u>call cscope#preview('3', 'v', 1, 0)<cr>
+    nnoremap <silent> <leader>fC    :     call cscope#preview('2', 'n', 1, 0)<cr>
+    vnoremap <silent> <leader>fC    :<c-u>call cscope#preview('2', 'v', 1, 0)<cr>
+
+
+    " Write
+    nnoremap <silent> <leader>fw    :     call cscope#preview('9', 'n', 0, 0)<cr>
+    vnoremap <silent> <leader>fw    :<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
+    nnoremap <silent> <leader>fW    :     call cscope#preview('9', 'n', 0, 1)<cr>
+    vnoremap <silent> <leader>fW    :<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
+
+
 
     " " Function symbol
     " nnoremap <silent> <leader>fw    :CSTagFilter<cr>
@@ -164,7 +172,7 @@ if g:fzf_cscope_map
     " vnoremap <silent>        ;fw    :<c-u>CSTagFilterV!<cr>
 
     nnoremap <silent> <leader>fj    :FZFJump<cr>
-    nnoremap <silent> <leader>fc    :FZFChange<cr>
+    nnoremap <silent> <leader>fe    :FZFChange<cr>
     nnoremap <silent> <leader>fm    :FZFMarks<cr>
 
     " " tExt

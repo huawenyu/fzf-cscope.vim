@@ -22,7 +22,10 @@ if !exists("s:init")
     " echo "void render(SDL_Surface *screen)" | awk '/([a-zA-Z]\w\*)\s+(\w+)\s*\([^\)]*\)\s*(;|{))/{print $0}'
     " echo "void render(SDL_Surface *screen)" | awk '/(?![a-z])[^\:,>,\.]([a-z,A-Z]+[_]*[a-z,A-Z]*)+[(]/{print $0}'
 
+    " Troubleshooting:
     " Check it: https://ideone.com/
+    " function match: https://stackoverflow.com/questions/476173/regex-to-pull-out-c-function-prototype-declarations
+    " cscope -dL0 <word> | awk
     "\011  tab
     let s:color_cscope =<< END
         | awk -v env_ftxt="$ftxt" '
@@ -40,7 +43,7 @@ if !exists("s:init")
             caller = $2; $2 = "";
 
             isFunc = 0;
-            tmp = match($0, /(\w+( )?){2,}\([^!@#$+%^]+?[\),]/);
+            tmp = match($0, /(\w+(\s+)?){2,}\([^!@#$+%^]+?\)/);
             if (tmp) {
                 tmp = match($0, /;$/);
                 if (! tmp) {
@@ -80,7 +83,7 @@ END
             fname = basename($4);
             file = $4; $4 = "";
 
-            tmp = match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);
+            tmp = match($0, /(\w+(\s+)?){2,}\([^!@#$+%^]+?\)/, arr);
             if (tmp)
                 print file ":" lnum ":0:" color1(fname) ": " color2(arr[1]) "(" arr[3] ")";
             else
@@ -110,7 +113,7 @@ END
             fname = basename($4);
             file = $4; $4 = "";
 
-            tmp = match($0, /(\w+( )?){2,}\(([^!@#$+%^]+)?\)/, arr);
+            tmp = match($0, /(\w+(\s+)?){2,}\([^!@#$+%^]+?\)/, arr);
             if (tmp)
                 print file ":" lnum ":0:" color1(fname) ": " color2(arr[1]) "(" arr[3] ")";
             else
@@ -203,7 +206,7 @@ function! cscope#preview(option, mode, isfunc, filter)
             if char1st !=# '"' && char1st !=# "'"
                 let query = "'". query. ".*'"
             endif
-			let query = input({'prompt':'Cscope: ', 'default': query, 'cancelreturn': ''})
+            let query = input({'prompt':'Cscope: ', 'default': query, 'cancelreturn': ''})
             call inputrestore()
 
             if len(query) == 0 | return | endif
@@ -211,10 +214,22 @@ function! cscope#preview(option, mode, isfunc, filter)
 
         " Suppose the path it's unix/linux path style
         " let $ftxt = hw#misc#GetWord(a:mode)
-        let $ftxt = '/'
-        if a:filter && !empty(g:fzfCscopeFilter)
-           let $ftxt = g:fzfCscopeFilter
+        if a:filter
+            " g:fzfCscopeFilter
+            let $ftxt = get(g:, 'fzfCscopeFilter', '/')
+        else
+            let $ftxt = '/'
         endif
+
+        "" Debug
+        "call fzf#run({ 'source': 'ls' })
+        "call fzf#run({ 'source': 'cscope -dL0 vd_secure_reload_timer'..join(s:color_cscope) })
+        "call fzf#run(fzf#wrap({ 'source': 'ls' }))
+        "call fzf#run(fzf#vim#with_preview(fzf#wrap({ 'source': 'ls' })))
+
+        "" See how these decorators "decorate" (or "extend") the dictionary
+        "echo fzf#wrap({ 'source': 'ls' })
+        "echo fzf#vim#with_preview(fzf#wrap({ 'source': 'ls' }))
 
         call fzf#vim#grep('cscope -dL'..a:option..' '..query..join(s:color_cscope),
                     \   1,
