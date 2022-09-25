@@ -8,6 +8,13 @@ let g:vim_confi_option = get(g:, 'vim_confi_option', {})
 let g:vim_confi_option.tmp_file = get(g:vim_confi_option, 'tmp_file', '/tmp/vim.tmp')
 
 if !empty(g:vim_confi_option.fzf_files)
+    "
+    " @var tag is the 2nd content of the file, so here insert <tab> between filename and content-sample-line
+    " @cmd gensub offer match-group references
+    " @cmd path3() shorter path by only keep last 3 level:
+    "               ~/.vim/bundle/fzf-cscope.vim/plugin/fzffilter.vim
+    "                             fzf-cscope.vim/plugin/fzffilter.vim
+    "
     "@evalStart
     let g:vim_confi_option.trans_grepshorter =<< END
         | awk -F: '
@@ -15,13 +22,17 @@ if !empty(g:vim_confi_option.fzf_files)
             sub(".*/", "", file);
             return file;
         }
+        function path3(file) {
+            return gensub(/.*\/([^\/]*)\/([^\/]*)\/([^\/]*)$/, "\\1/\\2/\\3", file);
+        }
         BEGIN { OFS = FS } /:2:/{
             fname = basename($1);
             tag = $3;
             if (fname == $3)
                 tag = "";
 
-            $3 = $3 ":" fname ":" tag;
+            fname = path3($1);
+            $3 = $3 ":" fname ":\t\011" tag;
             print;
         }'
 END
@@ -55,14 +66,14 @@ let g:vim_confi_option.trans_jump =<< END
         return file;
     }
     function exists(name) {
-	    return getline < name <= 0 ? 0 : 1;
+        return getline < name <= 0 ? 0 : 1;
     }
     BEGIN {}
     NF > 3 {
         line  = $2;
         col   = $3;
 
-	    gsub(/^~/, env_home, $4);
+        gsub(/^~/, env_home, $4);
         fname = $4;
 
         text  = "";
@@ -177,12 +188,9 @@ if HasPlug('vim.config')
                 \ 1, fzf#vim#with_preview(), <bang>0)
 
     "autocmd FileType vimwiki nnoremap <buffer> <leader>wf :WikiRg<Space>
-    silent! Shortcut Wiki(bug) search full text
-			\ nnoremap ;wb      :WikiRgBug<Space>
-    silent! Shortcut Wiki(dot) search full text
-			\ nnoremap ;ww      :WikiRgDot<Space>
-    silent! Shortcut Wiki(linux) search full text
-			\ nnoremap ;wt      :WikiRgLinux<Space>
+    nnoremap <leader>sw      :"Wiki(pub) Search full text       "<c-U>WikiRgBug<Space>
+    nnoremap <leader>sm      :"Wiki(dot) Search full text       "<c-U>WikiRgDot<Space>
+    nnoremap <leader>sh      :"Wiki(linux) Search full text     "<c-U>WikiRgLinux<Space>
 endif
 
 

@@ -126,11 +126,13 @@ if g:fzf_cscope_map
     "                           mode-empty    tags not-func-symbol-uniq
     "  symbol   - fe            same-as fw, but without filter
     "
-    nnoremap <silent> <leader>ff    :"open Files"<c-u>CSFileFilter<cr>
-    vnoremap <silent> <leader>ff    :"open Files"<c-u>CSFileFilter<cr>
+    silent! Shortcut! <space>f      [fzf-cscope.vim](cscope)Find/fzf, sink-to-quickfix <c-q><cr>: Symbol, References, Caller, Callee, Diagnostics
 
-    nnoremap <silent>        ;ff    :"open Files"<c-u>CSFileFilter!<cr>
-    vnoremap <silent>        ;ff    :"open Files"<c-u>CSFileFilter!<cr>
+    nnoremap <silent> <leader>ff    :"open Files            "<c-U>CSFileFilter<cr>
+    vnoremap <silent> <leader>ff    :"open Files            "<c-U>CSFileFilter<cr>
+
+    nnoremap <silent>        ;ff    :"open Files            "<c-U>CSFileFilter!<cr>
+    vnoremap <silent>        ;ff    :"open Files            "<c-U>CSFileFilter!<cr>
 
     " 'nvim-lspconfig' clangd assign with the prefix ;
   "if HasNoPlug('nvim-lspconfig')
@@ -144,24 +146,22 @@ if g:fzf_cscope_map
 
     " Uppercase with filter define by g:fzfCscopeFilter
     " Symbol:
-    nnoremap <silent> <leader>fs    :"find Symbol"<c-u>call cscope#preview('0', 'n', 0, 0)<cr>
-    vnoremap <silent> <leader>fs    :"find Symbol"<c-u>call cscope#preview('0', 'v', 0, 0)<cr>
-    nnoremap <silent> <leader>fS    :"find Symbol(+)"<c-u>call cscope#preview('0', 'n', 0, 1)<cr>
-    vnoremap <silent> <leader>fS    :"find Symbol(+)"<c-u>call cscope#preview('0', 'v', 0, 1)<cr>
+    nnoremap <silent> <leader>fs    :"(cscope)References        "<c-U>call cscope#preview('0', 'n', 0, 0)<cr>
+    vnoremap <silent> <leader>fs    :"(cscope)References        "<c-U>call cscope#preview('0', 'v', 0, 0)<cr>
+    nnoremap <silent> <leader>fS    :"(cscope)References(+)     "<c-U>call cscope#preview('0', 'n', 0, 1)<cr>
+    vnoremap <silent> <leader>fS    :"(cscope)References(+)     "<c-U>call cscope#preview('0', 'v', 0, 1)<cr>
 
    " Function
-    nnoremap <silent> <leader>fc    :"function Caller"<c-u>call cscope#preview('3', 'n', 1, 0)<cr>
-    vnoremap <silent> <leader>fc    :"function caller"<c-u>call cscope#preview('3', 'v', 1, 0)<cr>
-    nnoremap <silent> <leader>fC    :"function callee"<c-u>call cscope#preview('2', 'n', 1, 0)<cr>
-    vnoremap <silent> <leader>fC    :"function callee"<c-u>call cscope#preview('2', 'v', 1, 0)<cr>
-
+    nnoremap <silent> <leader>fc    :"(cscope)Caller            "<c-U>call cscope#preview('3', 'n', 1, 0)<cr>
+    vnoremap <silent> <leader>fc    :"(cscope)Caller            "<c-U>call cscope#preview('3', 'v', 1, 0)<cr>
+    nnoremap <silent> <leader>fC    :"(cscope)Callee            "<c-U>call cscope#preview('2', 'n', 1, 0)<cr>
+    vnoremap <silent> <leader>fC    :"(cscope)Callee            "<c-U>call cscope#preview('2', 'v', 1, 0)<cr>
 
     " Write
-    nnoremap <silent> <leader>fw    :"who Write/assign me"<c-u>call cscope#preview('9', 'n', 0, 0)<cr>
-    vnoremap <silent> <leader>fw    :"who Write/assign me"<c-u>call cscope#preview('9', 'v', 0, 0)<cr>
-    nnoremap <silent> <leader>fW    :"who Write/assign me(+)"<c-u>call cscope#preview('9', 'n', 0, 1)<cr>
-    vnoremap <silent> <leader>fW    :"who Write/assign me(+)"<c-u>call cscope#preview('9', 'v', 0, 1)<cr>
-
+    nnoremap <silent> <leader>fw    :"(cscope)Write value       "<c-U>call cscope#preview('9', 'n', 0, 0)<cr>
+    vnoremap <silent> <leader>fw    :"(cscope)Write value       "<c-U>call cscope#preview('9', 'v', 0, 0)<cr>
+    nnoremap <silent> <leader>fW    :"(cscope)Write value(+)    "<c-U>call cscope#preview('9', 'n', 0, 1)<cr>
+    vnoremap <silent> <leader>fW    :"(cscope)Write value(+)    "<c-U>call cscope#preview('9', 'v', 0, 1)<cr>
 
 
     " " Function symbol
@@ -171,25 +171,15 @@ if g:fzf_cscope_map
     " nnoremap <silent>        ;fw    :CSTagFilter!<cr>
     " vnoremap <silent>        ;fw    :<c-u>CSTagFilterV!<cr>
 
-    nnoremap <silent> <leader>fj    :"list Jumps"<c-u>FZFJump<cr>
-    nnoremap <silent> <leader>fe    :"list Edit/changes"<c-u>FZFChange<cr>
-    nnoremap <silent> <leader>fm    :"list Marks"<c-u>FZFMarks<cr>
+    nnoremap <silent> <leader>fj    :"(fzf)Jumps                "<c-U>FZFJump<cr>
+    nnoremap <silent> <leader>fe    :"(fzf)Edit/changes         "<c-U>FZFChange<cr>
+    nnoremap <silent> <leader>fm    :"(fzf)Marks                "<c-U>FZFMarks<cr>
 
     " " tExt
     " nnoremap          <leader>fe    :CscopeText! <c-r>=utils#GetSelected('')<cr>
     " vnoremap          <leader>fe    :<c-u>CscopeText! <c-r>=utils#GetSelected('')<cr>
     " nnoremap          <leader>fE    :CscopeGrep! <c-r>=utils#GetSelected('')<cr>
     " vnoremap          <leader>fE    :<c-u>CscopeGrep! <c-r>=utils#GetSelected('')<cr>
-
-    silent! Shortcut! <space>ff    find file (filter) related
-    silent! Shortcut!       ;ff    find file (all)
-    silent! Shortcut! <space>fs    find function (filter)
-    silent! Shortcut!       ;fs    find function (all)
-
-    silent! Shortcut! <space>fw    find symbol (filter)
-    silent! Shortcut!       ;fw    find symbol (filter) with assign value
-    silent! Shortcut! <space>fe    find symbol (all)
-    silent! Shortcut!       ;fe    find symbol (all) with assign value
 
 endif
 
