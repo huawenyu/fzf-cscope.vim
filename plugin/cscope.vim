@@ -126,7 +126,7 @@ if g:fzf_cscope_map
     "                           mode-empty    tags not-func-symbol-uniq
     "  symbol   - fe            same-as fw, but without filter
     "
-    silent! Shortcut! <space>f      [fzf-cscope.vim](cscope)Find/fzf, sink-to-quickfix <c-q><cr>: Symbol, References, Caller, Callee, Diagnostics
+    silent! Shortcut! <space>f      [fzf-cscope.vim](cscope)Find/fzf, <f*> sink-to-quickfix <c-q><cr>: Symbol, References, Caller, Callee, Diagnostics
 
     nnoremap <silent> <leader>ff    :"open Files            "<c-U>CSFileFilter<cr>
     vnoremap <silent> <leader>ff    :"open Files            "<c-U>CSFileFilter<cr>
