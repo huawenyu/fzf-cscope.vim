@@ -22,6 +22,7 @@ augroup end
 command! Cscope :call cscope#ReLoadCscope()
 
 command! -bang -nargs=* CSFileFilter    call cscope#FileFilter(<q-args>, <bang>0)
+command! -bang -nargs=* CSTagFilterMd   call cscope#TagFilter(<q-args>, <bang>0, 'md')
 command! -bang -nargs=* CSTagFilter     call cscope#TagFilter(<q-args>, <bang>0, 'n')
 command! -bang -nargs=* CSTagFilterV    call cscope#TagFilter(<q-args>, <bang>0, 'v')
 command! -bang -nargs=* CscopeText      call cscope#preview('4', <q-args>, <bang>0)
@@ -126,7 +127,7 @@ if g:fzf_cscope_map
     "                           mode-empty    tags not-func-symbol-uniq
     "  symbol   - fe            same-as fw, but without filter
     "
-    silent! Shortcut! <space>f      [fzf-cscope.vim](cscope)Find/fzf, <f*> sink-to-quickfix <c-q><cr>: Symbol, References, Caller, Callee, Diagnostics
+    silent! Shortcut! <space>f      [fzf-cscope.vim](cscope)Find, <f*> sink-to-quickfix <c-q><cr>: Symbol, References, Caller, Callee, Diagnostics
 
     nnoremap <silent> <leader>ff    :"open Files            "<c-U>CSFileFilter<cr>
     vnoremap <silent> <leader>ff    :"open Files            "<c-U>CSFileFilter<cr>
@@ -165,8 +166,8 @@ if g:fzf_cscope_map
 
 
     " " Function symbol
-    " nnoremap <silent> <leader>fw    :CSTagFilter<cr>
-    " vnoremap <silent> <leader>fw    :<c-u>CSTagFilterV<cr>
+    nnoremap <silent> <leader>ft    :"(fzf)Tag                  "<c-U>CSTagFilter<cr>
+    nnoremap <silent> <leader>fT    :"(tagme -a md)Tag-Marddown "<c-U>CSTagFilterMd<cr>
     " " no Function symbol
     " nnoremap <silent>        ;fw    :CSTagFilter!<cr>
     " vnoremap <silent>        ;fw    :<c-u>CSTagFilterV!<cr>

@@ -63,8 +63,9 @@ if !exists("s:init")
 END
 
     " ($2 == "function" && $1 ~ env_ftxt)
+    "            print file ":" lnum ":0:" color1(fname) ": " color2(arr[1]) "(" arr[3] ")";
     let s:color_tag_func =<< END
-        | awk -v env_ftxt="$ftxt" '
+        | awk -v env_ftagText="$ftagText" -v env_ftagDir="$ftagDir" '
         function color1(txt) { return "\033[34m" txt "\033[0m"; }
         function color2(txt) { return "\033[35m" txt "\033[0m"; }
         function color3(txt) { return "\033[32m" txt "\033[0m"; }
@@ -76,7 +77,7 @@ END
         }
 
         BEGIN {}
-        ($2 == "function" && $4 ~ env_ftxt) {
+        ($2 == "function" && "$1 $2" ~ env_ftagText && $4 ~ env_ftagDir) {
 
             $1 = $2 = "";
             lnum = $3; $3 = "";
@@ -123,6 +124,32 @@ END
         '
 END
 
+    "        # arr[1]  keywords
+    "        # arr[2]  section
+    "        # arr[3]  line number
+    "        # arr[4]  file path
+    let s:color_tag_markdown =<< END
+        | awk -v env_ftxt="$ftxt" '
+        function color1(txt) { return "\033[34m" txt "\033[0m"; }
+        function color2(txt) { return "\033[35m" txt "\033[0m"; }
+        function color3(txt) { return "\033[32m" txt "\033[0m"; }
+        function color4(txt) { return "\033[37m" txt "\033[0m"; }
+        function color5(txt) { return "\033[33m" txt "\033[0m"; }
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
+
+        BEGIN {}
+        match($0, /(.*)\s+(chapter|section|subsecion)\s+([0-9]+)\s+(\S+)/, arr) {
+            lnum = arr[3];
+            fname = basename(arr[4]);
+            file = arr[4];
+            print file ":" lnum ":0:" color1(fname) ": " color2(arr[1]);
+        }
+        END {}
+        '
+END
 
     let s:color_fake_lnum =<< END
         | awk -v env_ftxt="$ftxt" '
@@ -304,45 +331,60 @@ function! cscope#FileFilter(args, bang)
 endfunction
 
 
-function! cscope#TagFilter(isfunc, mode, filter)
+function! cscope#TagFilter(text, bang, mode)
     let __func__ = "cscope#TagFilter() "
 
     let tagfile = ''
     if !exists('g:fuzzy_file_tag')
-        let g:fuzzy_file_tag = ["tagx", ".tagx"]
+        if a:mode == 'md'
+            let g:fuzzy_file_tag = [$HOME..'/tagx', $HOME..'/.tagx']
+        else
+            let g:fuzzy_file_tag = ["tagx", ".tagx"]
+        endif
     endif
-    for i in g:fuzzy_file_tag
-        if filereadable(i)
-            let tagfile = i
+    for oneTag in g:fuzzy_file_tag
+        if filereadable(oneTag)
+            let tagfile = oneTag
             break
         endif
     endfor
 
     if empty(tagfile)
-        Tags
+        if exists(":Tags")
+            Tags
+        endif
         return
     endif
 
-    " let $ftxt = hw#misc#GetWord(a:mode)
-    let $ftxt = '/'
-    if a:filter && !empty(g:fzfCscopeFilter)
-        let $ftxt = g:fzfCscopeFilter
+    let $ftagText = ' '
+    if a:text
+        let $ftagText = a:text
     endif
-
-    if a:isfunc
-        let cmdStr = 'cat '..tagfile..join(s:color_tag_func)
+    let $ftagDir = '/'
+    if a:mode == 'md'
+        let cmdStr = 'cat '..tagfile..join(s:color_tag_markdown)
     else
-        let cmdStr = 'cat '..tagfile..join(s:color_tag_no_func)
+        if !empty(g:fzfCscopeFilter)
+            let $ftagDir = g:fzfCscopeFilter
+        endif
+
+        if a:bang
+            let cmdStr = 'cat '..tagfile..join(s:color_tag_no_func)
+        else
+            let cmdStr = 'cat '..tagfile..join(s:color_tag_func)
+        endif
     endif
 
-    silent! call s:log.info(__func__, cmdStr)
+    silent! call s:log.info(__func__, "Text='"..$ftagText.."'", " Dir='"..$ftagDir.."'", " AWK", cmdStr)
     if !empty(cmdStr)
         call fzf#vim#grep(cmdStr,
                 \   1,
                 \   fzfpreview#p(1, { 'options': '--delimiter=: --with-nth=4..' }),
                 \   1)
     else
-        Tags
+        if exists(":Tags")
+            Tags
+        endif
         return
     endif
 endfunction
