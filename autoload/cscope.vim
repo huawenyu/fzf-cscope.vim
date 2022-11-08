@@ -335,14 +335,17 @@ function! cscope#TagFilter(text, bang, mode)
     let __func__ = "cscope#TagFilter() "
 
     let tagfile = ''
-    if !exists('g:fuzzy_file_tag')
-        if a:mode == 'md'
-            let g:fuzzy_file_tag = [$HOME..'/tagx', $HOME..'/.tagx']
+    if a:mode == 'md'
+        let tagList = [$HOME..'/.cache/tagx', $HOME..'/.cache/.tagx']
+    else
+        if exists('g:fuzzy_file_tag')
+            let tagList = g:fuzzy_file_tag
         else
-            let g:fuzzy_file_tag = ["tagx", ".tagx"]
+            let tagList = ["tagx", ".tagx"]
         endif
     endif
-    for oneTag in g:fuzzy_file_tag
+
+    for oneTag in tagList
         if filereadable(oneTag)
             let tagfile = oneTag
             break
