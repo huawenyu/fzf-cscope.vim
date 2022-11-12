@@ -22,9 +22,6 @@ augroup end
 command! Cscope :call cscope#ReLoadCscope()
 
 command! -bang -nargs=* CSFileFilter    call cscope#FileFilter(<q-args>, <bang>0)
-command! -bang -nargs=* CSTagFilterMd   call cscope#TagFilter(<q-args>, <bang>0, 'md')
-command! -bang -nargs=* CSTagFilter     call cscope#TagFilter(<q-args>, <bang>0, 'n')
-command! -bang -nargs=* CSTagFilterV    call cscope#TagFilter(<q-args>, <bang>0, 'v')
 command! -bang -nargs=* CscopeText      call cscope#preview('4', <q-args>, <bang>0)
 command! -bang -nargs=* CscopeGrep      call cscope#preview('6', <q-args>, <bang>0)
 
@@ -164,23 +161,10 @@ if g:fzf_cscope_map
     nnoremap <silent> <leader>fW    :"(cscope)Write value(+)    "<c-U>call cscope#preview('9', 'n', 0, 1)<cr>
     vnoremap <silent> <leader>fW    :"(cscope)Write value(+)    "<c-U>call cscope#preview('9', 'v', 0, 1)<cr>
 
-
-    " " Function symbol
-    nnoremap <silent> <leader>ft    :"(fzf)Tag                  "<c-U>CSTagFilter<cr>
-    nnoremap <silent> <leader>fT    :"(tagme -a md)Tag-Marddown "<c-U>CSTagFilterMd<cr>
-    " " no Function symbol
-    " nnoremap <silent>        ;fw    :CSTagFilter!<cr>
-    " vnoremap <silent>        ;fw    :<c-u>CSTagFilterV!<cr>
-
-    nnoremap <silent> <leader>fj    :"(fzf)Jumps                "<c-U>FZFJump<cr>
-    nnoremap <silent> <leader>fe    :"(fzf)Edit/changes         "<c-U>FZFChange<cr>
-    nnoremap <silent> <leader>fm    :"(fzf)Marks                "<c-U>FZFMarks<cr>
-
     " " tExt
     " nnoremap          <leader>fe    :CscopeText! <c-r>=utils#GetSelected('')<cr>
     " vnoremap          <leader>fe    :<c-u>CscopeText! <c-r>=utils#GetSelected('')<cr>
     " nnoremap          <leader>fE    :CscopeGrep! <c-r>=utils#GetSelected('')<cr>
     " vnoremap          <leader>fE    :<c-u>CscopeGrep! <c-r>=utils#GetSelected('')<cr>
-
 endif
 

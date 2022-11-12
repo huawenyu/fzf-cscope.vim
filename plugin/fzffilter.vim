@@ -7,7 +7,7 @@ let g:loaded_hw_fzffilter = 1
 let g:vim_confi_option = get(g:, 'vim_confi_option', {})
 let g:vim_confi_option.tmp_file = get(g:vim_confi_option, 'tmp_file', '/tmp/vim.tmp')
 
-if !empty(g:vim_confi_option.fzf_files)
+if !empty(g:vim_wiki_dirs)
     "
     " @var tag is the 2nd content of the file, so here insert <tab> between filename and content-sample-line
     " @cmd gensub offer match-group references
@@ -16,7 +16,7 @@ if !empty(g:vim_confi_option.fzf_files)
     "                             fzf-cscope.vim/plugin/fzffilter.vim
     "
     "@evalStart
-    let g:vim_confi_option.trans_grepshorter =<< END
+    let s:grep_filter_2ndline =<< END
         | awk -F: '
         function basename(file) {
             sub(".*/", "", file);
@@ -36,17 +36,58 @@ if !empty(g:vim_confi_option.fzf_files)
             print;
         }'
 END
-    "echo "test:[". join(g:vim_confi_option.trans_grepshorter). "]"
+    "echo "test:[". join(g:vim_confi_option.grep_filter_2ndline). "]"
     "@evalEnd
 
-    command! -bang -nargs=* Cheat
+    let s:grep_prettier =<< END
+        | awk -F: '
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
+        function path3(file) {
+            return gensub(/.*\/([^\/]*)\/([^\/]*)\/([^\/]*)$/, "\\1/\\2/\\3", file);
+        }
+        BEGIN { OFS = FS } {
+            fname = basename($1);
+            tag = $3;
+            if (fname == $3)
+                tag = "";
+
+            fname = path3($1);
+            $3 = $3 ":" fname ":\t\011" tag;
+            print;
+        }'
+END
+
+    command! -bang -nargs=* FzfFiles
                 \ call fzf#vim#grep(
                 \   'grep --color=no -rn --exclude-dir={'..shellescape("'.tag?',")..shellescape("'.cache',")..shellescape("'.ccls_cache'")..'} -m2 "" -- '
-                \       ..join(g:vim_confi_option.fzf_files)
+                \       ..join(g:vim_wiki_dirs)
                 \       ..' '..shellescape(<q-args>)
-                \       ..join(g:vim_confi_option.trans_grepshorter),
+                \       ..join(s:grep_filter_2ndline),
                 \   1,
                 \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4.. -q '..shellescape(hw#misc#GetCursorWord()) }),
+                \   <bang>0)
+
+    command! -bang -nargs=* WikiFzfFiles
+                \ call fzf#vim#grep(
+                \   'grep --color=no -rn --include \*.md --exclude-dir={'..shellescape("'.tag?',")..shellescape("'.cache',")..shellescape("'.ccls_cache'")..'} -m2 "" -- '
+                \       ..join(g:vim_wiki_dirs)
+                \       ..' '..shellescape(<q-args>)
+                \       ..join(s:grep_filter_2ndline),
+                \   1,
+                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
+                \   <bang>0)
+
+    command! -bang -nargs=* WikiFzfText
+                \ call fzf#vim#grep(
+                \   'rg --column --line-number --no-heading --no-column --color=never --sort-files --smart-case --type md '
+                \   ..' '..shellescape(<q-args>)
+                \   ..' '..join(g:vim_wiki_dirs)
+                \   ..join(s:grep_prettier),
+                \   1,
+                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
                 \   <bang>0)
 
 endif
@@ -171,27 +212,20 @@ command! -bang -nargs=* FZFChange
             \       <bang>0)
 
 
-if HasPlug('vim.config')
-    command! -bang -nargs=* WikiRgBug call fzf#vim#grep('rg
-                \ --column --line-number --no-heading --no-column --color=never --sort-files
-                \ --smart-case --type md "<q-args>" "$MYPATH_WIKI"',
-                \ 1, fzf#vim#with_preview(), <bang>0)
+command! -bang -nargs=* FzfTagHomeCacheTag   call fzffilter#TagFilter(<q-args>, <bang>0, 'home-cache-tag')
+command! -bang -nargs=* FzfTagFilter         call fzffilter#TagFilter(<q-args>, <bang>0, 'n')
+command! -bang -nargs=* FzfTagFilterV        call fzffilter#TagFilter(<q-args>, <bang>0, 'v')
 
-    command! -bang -nargs=* WikiRgDot call fzf#vim#grep('rg
-                \ --column --line-number --no-heading --no-column --color=never --sort-files
-                \ --smart-case --type md "<q-args>" "$HOME/dotwiki"',
-                \ 1, fzf#vim#with_preview(), <bang>0)
 
-    command! -bang -nargs=* WikiRgLinux call fzf#vim#grep('rg
-                \ --column --line-number --no-heading --no-column --color=never --sort-files
-                \ --smart-case --type md "<q-args>" "$HOME/wiki"',
-                \ 1, fzf#vim#with_preview(), <bang>0)
+command! -bang -nargs=* WikiRgDot call fzf#vim#grep('rg
+            \ --column --line-number --no-heading --no-column --color=never --sort-files
+            \ --smart-case --type md "<q-args>" "$HOME/dotwiki"',
+            \ 1, fzf#vim#with_preview(), <bang>0)
 
-    "autocmd FileType vimwiki nnoremap <buffer> <leader>wf :WikiRg<Space>
-    nnoremap <leader>sw      :"Wiki(pub) Search full text       "<c-U>WikiRgBug<Space>
-    nnoremap <leader>sm      :"Wiki(dot) Search full text       "<c-U>WikiRgDot<Space>
-    nnoremap <leader>sh      :"Wiki(linux) Search full text     "<c-U>WikiRgLinux<Space>
-endif
+command! -bang -nargs=* WikiRgLinux call fzf#vim#grep('rg
+            \ --column --line-number --no-heading --no-column --color=never --sort-files
+            \ --smart-case --type md "<q-args>" "$HOME/wiki"',
+            \ 1, fzf#vim#with_preview(), <bang>0)
 
 
 command! FzfQF call fzf#run({
