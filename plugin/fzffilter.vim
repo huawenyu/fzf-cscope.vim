@@ -39,6 +39,44 @@ END
     "echo "test:[". join(g:vim_confi_option.grep_filter_2ndline). "]"
     "@evalEnd
 
+
+    " @var tag is the 2nd content of the file, so here insert <tab> between filename and content-sample-line
+    " @cmd gensub offer match-group references
+    " @cmd path3() shorter path by only keep last 3 level:
+    "               ~/.vim/bundle/fzf-cscope.vim/plugin/fzffilter.vim
+    "                             fzf-cscope.vim/plugin/fzffilter.vim
+    " For example:
+    "   grep output: ./tldr/linux/sharememory.md:1:# sharememory: mmap, shmget, shm_open
+    "   awk input:
+    "         $3,4  <The text>  '# sharememory: mmap, shmget, shm_open'
+    "         $3    '# sharememory'
+    "         $4    'mmap, shmget, shm_open'
+    "@evalStart
+    let s:grep_filter_1stline =<< END
+        | awk -F: '
+        function color1(txt) { return "\033[34m" txt "\033[0m"; }
+        function color2(txt) { return "\033[35m" txt "\033[0m"; }
+        function color3(txt) { return "\033[32m" txt "\033[0m"; }
+        function color4(txt) { return "\033[37m" txt "\033[0m"; }
+        function color5(txt) { return "\033[33m" txt "\033[0m"; }
+
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
+        function path3(file) {
+            return gensub(/.*\/([^\/]*)\/([^\/]*)\/([^\/]*)$/, "\\1/\\2/\\3", file);
+        }
+        BEGIN { OFS = FS } /:1:/{
+            fname = basename($1);
+            fname = path3($1);
+            $3 = "0:" fname;
+            print $1 ":" $2 ":" $3;
+        }'
+END
+    "echo "test:[". join(g:vim_confi_option.grep_filter_2ndline). "]"
+    "@evalEnd
+
     let s:grep_prettier =<< END
         | awk -F: '
         function basename(file) {
@@ -72,10 +110,10 @@ END
 
     command! -bang -nargs=* WikiFzfFiles
                 \ call fzf#vim#grep(
-                \   'grep --color=no -rn --include \*.md --exclude-dir={'..shellescape("'.tag?',")..shellescape("'.cache',")..shellescape("'.ccls_cache'")..'} -m2 "" -- '
+                \   'grep --color=no -rn --include \*.md --exclude-dir={'..shellescape("'.tag?',")..shellescape("'.cache',")..shellescape("'.ccls_cache'")..'} -m1 "" -- '
                 \       ..join(g:vim_wiki_dirs)
                 \       ..' '..shellescape(<q-args>)
-                \       ..join(s:grep_filter_2ndline),
+                \       ..join(s:grep_filter_1stline),
                 \   1,
                 \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
                 \   <bang>0)

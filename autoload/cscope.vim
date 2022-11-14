@@ -25,6 +25,16 @@ if !exists("s:init")
     " Troubleshooting:
     " Check it: https://ideone.com/
     " function match: https://stackoverflow.com/questions/476173/regex-to-pull-out-c-function-prototype-declarations
+    " color: https://stackoverflow.com/questions/14482101/awk-adding-color-code-to-text
+    "       ["None"]    = 0;
+    "       ["Black"]   = 30;
+    "       ["Red"]     = 31;
+    "       ["Green"]   = 32;
+    "       ["Yellow"]  = 33;
+    "       ["Blue"]    = 34;
+    "       ["Magenta"] = 35;
+    "       ["Cyan"]    = 36;
+    "       ["White"]   = 37;
     " cscope -dL0 <word> | awk
     "\011  tab
     let s:color_cscope =<< END
