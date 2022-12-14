@@ -7,6 +7,95 @@ let g:loaded_hw_fzffilter = 1
 let g:vim_confi_option = get(g:, 'vim_confi_option', {})
 let g:vim_confi_option.tmp_file = get(g:vim_confi_option, 'tmp_file', '/tmp/vim.tmp')
 
+
+" tldr wiki search
+let g:vim_confi_option.tldr_dirs = []
+if executable('tldr') && !empty($TLDR_PAGES_SOURCE_LOCATION)
+    let s:tldr_dirs = split($TLDR_PAGES_SOURCE_LOCATION, ';')
+    let s:file_pre = 'file://'
+    for aDir in s:tldr_dirs
+        let aDir = expand(trim(aDir))
+        if aDir[0:len(s:file_pre)-1] ==# s:file_pre
+            let aDir = aDir[len(s:file_pre):]
+            if isdirectory(aDir)
+                call add(g:vim_confi_option.tldr_dirs, aDir)
+            endif
+        endif
+    endfor
+    unlet s:tldr_dirs
+    unlet s:file_pre
+endif
+
+if len(g:vim_confi_option.tldr_dirs) > 0
+    let s:grep_prettier =<< END
+        | awk -F: '
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
+        function path3(file) {
+            return gensub(/.*\/([^\/]*)\/([^\/]*)\/([^\/]*)$/, "\\1/\\2/\\3", file);
+        }
+        BEGIN { OFS = FS } {
+            fname = basename($1);
+            tag = $3;
+            if (fname == $3)
+                tag = "";
+
+            fname = path3($1);
+            $3 = $3 ":" fname ":\t\011" tag;
+            print;
+        }'
+END
+
+    " grep-sample: ./tldr/linux/sharememory.md:1:# sharememory: mmap, shmget, shm_open
+    let s:grep_hdr_prettier =<< END
+        | awk -F: '
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
+        function path3(file) {
+            return gensub(/.*\/([^\/]*)\/([^\/]*)\/([^\/]*)$/, "\\1/\\2/\\3", file);
+        }
+        BEGIN { OFS = FS }
+        $3 ~ /^# / || $3 ~ /^## / || $3 ~ /^### / {
+            fname = basename($1);
+            tag = $3;
+            if (fname == $3)
+                tag = "";
+
+            fname = path3($1);
+            $3 = $3 ":" fname ":\t\011" tag;
+            print;
+        }'
+END
+
+    command! -bang -nargs=* Wiki2FzfHeader
+                \ call fzf#vim#grep(
+                \   'rg --column --line-number --no-heading --no-column --color=never --sort-files --smart-case --type md '
+                \   ..' '..shellescape(<q-args>)
+                \   ..' '..join(g:vim_confi_option.tldr_dirs)
+                \   ..join(s:grep_hdr_prettier),
+                \   1,
+                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
+                \   <bang>0)
+
+    command! -bang -nargs=* Wiki2FzfText
+                \ call fzf#vim#grep(
+                \   'rg --column --line-number --no-heading --no-column --color=never --sort-files --smart-case --type md '
+                \   ..' '..shellescape(<q-args>)
+                \   ..' '..join(g:vim_confi_option.tldr_dirs)
+                \   ..join(s:grep_prettier),
+                \   1,
+                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
+                \   <bang>0)
+else
+    command! -bang -nargs=* Wiki2FzfHeader call echomsg "Please check env-var `TLDR_PAGES_SOURCE_LOCATION`: file://$HOME/wiki/tldr"
+    command! -bang -nargs=* Wiki2FzfText   call echomsg "Please check env-var `TLDR_PAGES_SOURCE_LOCATION`: file://$HOME/wiki/tldr"
+endif
+
+
 if !empty(g:vim_wiki_dirs)
     "
     " @var tag is the 2nd content of the file, so here insert <tab> between filename and content-sample-line
@@ -25,7 +114,8 @@ if !empty(g:vim_wiki_dirs)
         function path3(file) {
             return gensub(/.*\/([^\/]*)\/([^\/]*)\/([^\/]*)$/, "\\1/\\2/\\3", file);
         }
-        BEGIN { OFS = FS } /:2:/{
+        BEGIN { OFS = FS }
+        /:2:/ {
             fname = basename($1);
             tag = $3;
             if (fname == $3)
@@ -67,7 +157,8 @@ END
         function path3(file) {
             return gensub(/.*\/([^\/]*)\/([^\/]*)\/([^\/]*)$/, "\\1/\\2/\\3", file);
         }
-        BEGIN { OFS = FS } /:1:/{
+        BEGIN { OFS = FS }
+        /:1:/ {
             fname = basename($1);
             fname = path3($1);
             $3 = "0:" fname;
@@ -128,6 +219,10 @@ END
                 \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
                 \   <bang>0)
 
+else
+    command! -bang -nargs=* FzfFiles     call echomsg 'Please set in `.vimrc.before` like: `let g:vim_wiki_dirs = ["~/wiki"]`'
+    command! -bang -nargs=* WikiFzfFiles call echomsg 'Please set in `.vimrc.before` like: `let g:vim_wiki_dirs = ["~/wiki"]`'
+    command! -bang -nargs=* WikiFzfText  call echomsg 'Please set in `.vimrc.before` like: `let g:vim_wiki_dirs = ["~/wiki"]`'
 endif
 
 
