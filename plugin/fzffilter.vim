@@ -71,6 +71,38 @@ END
         }'
 END
 
+    let s:grep_filter_1st_titleline =<< END
+        | awk -F: '
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
+        function path3(file) {
+            return gensub(/.*\/([^\/]*)\/([^\/]*)\/([^\/]*)$/, "\\1/\\2/\\3", file);
+        }
+        BEGIN { OFS = FS }
+        /:1:/ {
+            fname = basename($1);
+            tag = $3;
+            if (fname == $3)
+                tag = "";
+
+            fname = path3($1);
+            $3 = $3 ":" fname ":\t\011" tag;
+            print;
+        }'
+END
+
+    command! -bang -nargs=* Wiki2FzfFile
+                \ call fzf#vim#grep(
+                \   'rg --column --line-number --no-heading --no-column --color=never --sort-files --smart-case --type md '
+                \   ..' '..shellescape(<q-args>)
+                \   ..' '..join(g:vim_confi_option.tldr_dirs)
+                \   ..join(s:grep_filter_1st_titleline),
+                \   1,
+                \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
+                \   <bang>0)
+
     command! -bang -nargs=* Wiki2FzfHeader
                 \ call fzf#vim#grep(
                 \   'rg --column --line-number --no-heading --no-column --color=never --sort-files --smart-case --type md '
@@ -91,6 +123,7 @@ END
                 \   fzfpreview#p(<bang>0, { 'options': '--delimiter=: --with-nth=4..' }),
                 \   <bang>0)
 else
+    command! -bang -nargs=* Wiki2FzfFile   call echomsg "Please check env-var `TLDR_PAGES_SOURCE_LOCATION`: file://$HOME/wiki/tldr"
     command! -bang -nargs=* Wiki2FzfHeader call echomsg "Please check env-var `TLDR_PAGES_SOURCE_LOCATION`: file://$HOME/wiki/tldr"
     command! -bang -nargs=* Wiki2FzfText   call echomsg "Please check env-var `TLDR_PAGES_SOURCE_LOCATION`: file://$HOME/wiki/tldr"
 endif
