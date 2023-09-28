@@ -10,15 +10,6 @@ if g:loaded_hw_fzfcscope == 1
 endif
 
 
-augroup fzf_cscope
-    autocmd!
-
-    "nvim should load cscope db by script
-    autocmd BufEnter * call cscope#LoadCscope()
-    "autocmd BufEnter /* call cscope#ReLoadCscope()
-    "autocmd BufNewFile,BufRead * call cscope#LoadCscope()
-augroup end
-
 command! Cscope :call cscope#ReLoadCscope()
 
 command! -bang -nargs=* CSFileFilter    call cscope#FileFilter(<q-args>, <bang>0)
@@ -27,6 +18,16 @@ command! -bang -nargs=* CscopeGrep      call cscope#preview('6', <q-args>, <bang
 
 
 if has('cscope')
+
+    augroup fzf_cscope
+        autocmd!
+
+        "nvim should load cscope db by script
+        autocmd BufEnter * call cscope#LoadCscope()
+        "autocmd BufEnter /* call cscope#ReLoadCscope()
+        "autocmd BufNewFile,BufRead * call cscope#LoadCscope()
+    augroup end
+
     set cscopetagorder=0
     "set cscopetag
     set cscoperelative
