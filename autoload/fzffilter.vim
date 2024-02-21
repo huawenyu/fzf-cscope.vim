@@ -92,6 +92,32 @@ END
         '
 END
 
+    "        # arr[1]  file path
+    "        # arr[2]  number
+    "        # arr[3]  search pattern
+    let s:color_tag_markdown2 =<< END
+        | awk -F':' -v env_ftxt="$ftxt" '
+        function color1(txt) { return "\033[34m" txt "\033[0m"; }
+        function color2(txt) { return "\033[35m" txt "\033[0m"; }
+        function color3(txt) { return "\033[32m" txt "\033[0m"; }
+        function color4(txt) { return "\033[37m" txt "\033[0m"; }
+        function color5(txt) { return "\033[33m" txt "\033[0m"; }
+        function basename(file) {
+            sub(".*/", "", file);
+            return file;
+        }
+
+        BEGIN {}
+        {
+            lnum = $2;
+            fname = basename($1);
+            file = $1;
+            print file ":" lnum ":0:" color1(fname) ": " color2($3);
+        }
+        END {}
+        '
+END
+
     let s:color_fake_lnum =<< END
         | awk -v env_ftxt="$ftxt" '
         function color0(txt) { return "\033[30m" txt "\033[0m"; }
@@ -146,7 +172,7 @@ function! fzffilter#TagFilter(text, bang, mode)
     endif
     let $ftagDir = '/'
     if a:mode == 'home-cache-tag'
-        let cmdStr = 'cat '..tagfile..join(s:color_tag_markdown)
+        let cmdStr = 'cat '..tagfile..join(s:color_tag_markdown2)
     else
         if !empty(g:fzfCscopeFilter)
             let $ftagDir = g:fzfCscopeFilter
